@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Phidel VGP — Documents</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background: #ffffff;
+            padding: 15px 20px;
+            border-bottom: 2px solid #eee;
+            font-size: 22px;
+            font-weight: bold;
+            color: red;
+        }
+        .container {
+            padding: 20px;
+            max-width: 700px;
+            margin: auto;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .file-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .validity {
+            font-size: 14px;
+            color: #666;
+        }
+        .download-btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .new-badge {
+            background: #ff0000;
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">Phidel VGP</div>
+
+<div class="container">
+    <input id="search" class="search-box" type="text"
+           placeholder="Rechercher un fichier..." onkeyup="searchFiles()">
+
+    <div id="files-container"></div>
+</div>
+
+<script>
+    // 🔹 Liste des fichiers (tes 4 PDF actuels)
+    const files = [
+        { key: "GE5001", name: "GE 5001.pdf", file: "GE 5001.pdf", validity: "30/09/2026" },
+        { key: "MS3001", name: "MS 3001.pdf", file: "MS 3001.pdf", validity: "30/09/2026" },
+        { key: "MS8001", name: "MS 8001.pdf", file: "MS 8001.pdf", validity: "30/09/2026" },
+        { key: "PA0601", name: "PA 0601.pdf", file: "PA 0601.pdf", validity: "30/09/2026" }
+    ];
+
+    // 🔹 Génération automatique du HTML
+    function renderFiles() {
+        const container = document.getElementById("files-container");
+        container.innerHTML = "";
+
+        files.forEach(f => {
+            const isDownloaded = localStorage.getItem(f.key) === "downloaded";
+
+            const fileDiv = document.createElement("div");
+            fileDiv.className = "file";
+
+            const leftDiv = document.createElement("div");
+
+            const nameDiv = document.createElement("div");
+            nameDiv.className = "file-name";
+            nameDiv.textContent = f.name;
+
+            if (!isDownloaded) {
+                const badge = document.createElement("span");
+                badge.className = "new-badge";
+                badge.id = f.key;
+                badge.textContent = "NEW";
+                nameDiv.appendChild(badge);
+            }
+
+            const validityDiv = document.createElement("div");
+            validityDiv.className = "validity";
+            validityDiv.textContent = "Validité : " + f.validity;
+
+            leftDiv.appendChild(nameDiv);
+            leftDiv.appendChild(validityDiv);
+
+            const link = document.createElement("a");
+            link.className = "download-btn";
+            link.href = f.file;
+            link.textContent = "Télécharger";
+            link.onclick = function () {
+                localStorage.setItem(f.key, "downloaded");
+            };
+
+            fileDiv.appendChild(leftDiv);
+            fileDiv.appendChild(link);
+
+            container.appendChild(fileDiv);
+        });
+    }
+
+    // 🔹 Recherche
+    function searchFiles() {
+        const input = document.getElementById("search").value.toLowerCase();
+        const fileDivs = document.getElementsByClassName("file");
+
+        for (let i = 0; i < fileDivs.length; i++) {
+            const name = fileDivs[i].getElementsByClassName("file-name")[0].innerText.toLowerCase();
+            fileDivs[i].style.display = name.includes(input) ? "flex" : "none";
+        }
+    }
+
+    // Initialisation
+    renderFiles();
+</script>
+
+</body>
+</html>
