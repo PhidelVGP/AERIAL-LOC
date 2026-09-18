@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phidel VGP — Documents</title>
+
+<style>
+
+body {
+    margin: 0;
+    background: white;
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    padding: 15px 20px;
+    border-bottom: 2px solid #eee;
+    font-size: 22px;
+    font-weight: bold;
+    color: red;
+}
+
+.container {
+    padding: 20px;
+    max-width: 700px;
+    margin: auto;
+}
+
+.search-box {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.file {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    background: #fafafa;
+    padding: 15px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.file-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.validity {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.download-btn {
+    background: #007bff;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.new-badge {
+    background: red;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.status {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    Phidel VGP
+</div>
+
+<div class="container">
+
+<input
+    id="search"
+    class="search-box"
+    type="text"
+    placeholder="Rechercher un fichier..."
+    oninput="searchFiles()"
+>
+
+<div id="status" class="status">
+    Chargement des documents...
+</div>
+
+<div id="files-container"></div>
+
+</div>
+
+<script type="module">
+
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+
+const OWNER = "PhidelVGP";
+
+const REPO = "AERIAL-LOC";
+
+const BRANCH = "main";
+
+const SITE = "https://phidelvgp.github.io/AERIAL-LOC/";
+
+
+let files = [];
+
+
+const filesContainer =
+    document.getElementById("files-container");
+
+
+const status =
+    document.getElementById("status");
+
+
+
+function fileUrl(name) {
+
+    return SITE + encodeURIComponent(name);
+
+}
+
+
+
+async function getPDFs() {
+
+    const url =
+        `https://api.github.com/repos/${OWNER}/${REPO}/contents/?ref=${BRANCH}`;
+
+
+    const response =
+        await fetch(url);
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Impossible de récupérer les fichiers."
+        );
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    return data.filter(file => {
+
+        return (
+            file.type === "file" &&
+            file.name.toLowerCase().endsWith(".pdf")
+        );
+
+    });
+
+}
+
+
+
+async function getPDFText(url) {
+
+    try {
+
+        const response =
+            await fetch(url);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "PDF inaccessible"
+            );
+
+        }
+
+
+        const data =
+            await response.arrayBuffer();
+
+
+        const pdf =
+            await pdfjsLib.getDocument({
+
+                data: data,
+
+                disableWorker: true
+
+            }).promise;
+
+
+        let text = "";
+
+
+        const maxPages =
+            Math.min(pdf.numPages, 3);
+
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= maxPages;
+            pageNumber++
+        ) {
+
+            const page =
+                await pdf.getPage(pageNumber);
+
+
+            const content =
+                await page.getTextContent();
+
+
+            text +=
+                content.items
+                    .map(item => item.str)
+                    .join(" ") + " ";
+
+        }
+
+
+        return text.replace(
+            /\s+/g,
+            " "
+        );
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "Lecture du PDF impossible :",
+            error
+        );
+
+
+        return "";
+
+    }
+
+}
+
+
+
+function extractDate(text, label) {
+
+    const escaped =
+        label.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+        );
+
+
+    const regex =
+        new RegExp(
+            escaped +
+            "\\s*:?\\s*" +
+            "(\\d{1,2}[\\/.-]\\d{1,2}[\\/.-]\\d{4})",
+            "i"
+        );
+
+
+    const match =
+        text.match(regex);
+
+
+    if (!match) {
+
+        return "";
+
+    }
+
+
+    return match[1].replace(
+        /[.-]/g,
+        "/"
+    );
+
+}
+
+
+
+async function getDates(pdfUrl) {
+
+    const text =
+        await getPDFText(pdfUrl);
+
+
+    if (!text) {
+
+        return {
+
+            verified: "",
+
+            validity: ""
+
+        };
+
+    }
+
+
+    const verified =
+        extractDate(
+            text,
+            "Vérifié le"
+        );
+
+
+    const validity =
+        extractDate(
+            text,
+            "À vérifier avant le"
+        );
+
+
+    return {
+
+        verified: verified,
+
+        validity: validity
+
+    };
+
+}
+
+
+
+async function renderFiles() {
+
+    filesContainer.innerHTML = "";
+
+
+    if (files.length === 0) {
+
+        status.textContent =
+            "Aucun PDF trouvé.";
+
+        return;
+
+    }
+
+
+    status.textContent =
+        `${files.length} document(s) trouvé(s).`;
+
+
+    for (const f of files) {
+
+        const name =
+            f.name;
+
+
+        const fileDiv =
+            document.createElement("div");
+
+
+        fileDiv.className =
+            "file";
+
+
+        const leftDiv =
+            document.createElement("div");
+
+
+        const nameDiv =
+            document.createElement("div");
+
+
+        nameDiv.className =
+            "file-name";
+
+
+        nameDiv.textContent =
+            name;
+
+
+
+        const badge =
+            document.createElement("span");
+
+
+        badge.className =
+            "new-badge";
+
+
+        badge.textContent =
+            "NEW";
+
+
+        nameDiv.appendChild(
+            badge
+        );
+
+
+
+        const validityDiv =
+            document.createElement("div");
+
+
+        validityDiv.className =
+            "validity";
+
+
+        validityDiv.textContent =
+            "Lecture des dates...";
+
+
+
+        leftDiv.appendChild(
+            nameDiv
+        );
+
+
+        leftDiv.appendChild(
+            validityDiv
+        );
+
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.className =
+            "download-btn";
+
+
+        link.href =
+            fileUrl(name);
+
+
+        link.target =
+            "_blank";
+
+
+        link.textContent =
+            "Télécharger";
+
+
+
+        link.onclick =
+            function() {
+
+                localStorage.setItem(
+                    name,
+                    "downloaded"
+                );
+
+
+                badge.remove();
+
+            };
+
+
+
+        fileDiv.appendChild(
+            leftDiv
+        );
+
+
+        fileDiv.appendChild(
+            link
+        );
+
+
+        filesContainer.appendChild(
+            fileDiv
+        );
+
+
+
+        const dates =
+            await getDates(
+                fileUrl(name)
+            );
+
+
+
+        validityDiv.innerHTML =
+            "";
+
+
+
+        if (dates.verified) {
+
+            validityDiv.innerHTML +=
+                "Vérifié le : " +
+                dates.verified;
+
+        }
+
+
+
+        if (dates.validity) {
+
+            if (dates.verified) {
+
+                validityDiv.innerHTML +=
+                    "<br>";
+
+            }
+
+
+            validityDiv.innerHTML +=
+                "À vérifier avant le : " +
+                dates.validity;
+
+        }
+
+
+
+        if (
+            !dates.verified &&
+            !dates.validity
+        ) {
+
+            validityDiv.textContent =
+                "Dates non disponibles";
+
+        }
+
+    }
+
+}
+
+
+
+function searchFiles() {
+
+    const input =
+        document
+            .getElementById("search")
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    const fileDivs =
+        document.getElementsByClassName("file");
+
+
+    for (
+        let i = 0;
+        i < fileDivs.length;
+        i++
+    ) {
+
+        const name =
+            fileDivs[i]
+                .getElementsByClassName("file-name")[0]
+                .innerText
+                .toLowerCase();
+
+
+        if (name.includes(input)) {
+
+            fileDivs[i].style.display =
+                "flex";
+
+        }
+
+        else {
+
+            fileDivs[i].style.display =
+                "none";
+
+        }
+
+    }
+
+}
+
+
+
+async function start() {
+
+    try {
+
+        status.textContent =
+            "Recherche des PDF...";
+
+
+        files =
+            await getPDFs();
+
+
+        await renderFiles();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        status.textContent =
+            "Erreur lors du chargement des documents.";
+
+    }
+
+}
+
+
+
+start();
+
+</script>
+
+</body>
+</html>
+
+Annonce
+
+
+ 
