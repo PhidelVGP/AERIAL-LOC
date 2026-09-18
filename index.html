@@ -1,361 +1,456 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Phidel VGP — Documents</title>
 
-
 <style>
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
-    background: white;
     font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    color: #1f2937;
 }
 
-
-.header {
-    padding: 15px 20px;
-    border-bottom: 2px solid #eee;
-    font-size: 22px;
-    font-weight: bold;
-    color: red;
+header {
+    background: #ffffff;
+    padding: 25px 20px 20px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-
-.container {
-    padding: 20px;
-    max-width: 700px;
-    margin: auto;
+h1 {
+    margin: 0 0 18px;
+    font-size: 30px;
 }
 
-
-.search-box {
-    box-sizing: border-box;
+.search {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    max-width: 600px;
+    padding: 15px 18px;
+    font-size: 17px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    outline: none;
 }
 
+.search:focus {
+    border-color: #2563eb;
+}
 
-.file {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    background: #fafafa;
+#status {
+    text-align: center;
     padding: 15px;
-    margin-bottom: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    color: #6b7280;
 }
 
-
-.file-name {
-    font-size: 18px;
-    font-weight: bold;
+#documents {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 15px 40px;
 }
 
-
-.validity {
-    font-size: 14px;
-    color: #666;
-    margin-top: 5px;
-    line-height: 1.5;
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
 }
 
-
-.download-btn {
-    background: #007bff;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    white-space: nowrap;
+.card h2 {
+    margin: 0 0 12px;
+    font-size: 21px;
 }
 
-
-.download-btn:hover {
-    background: #0056b3;
-}
-
-
-.new-badge {
-    background: red;
-    color: white;
+.new {
+    display: inline-block;
+    margin-left: 8px;
     padding: 4px 8px;
-    font-size: 12px;
-    border-radius: 4px;
-    margin-left: 10px;
+    background: #2563eb;
+    color: white;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+    vertical-align: middle;
 }
 
-
-.status {
-    color: #666;
+.dates {
+    color: #4b5563;
+    line-height: 1.7;
     margin-bottom: 15px;
 }
 
+.download {
+    display: inline-block;
+    text-decoration: none;
+    background: #2563eb;
+    color: white;
+    padding: 11px 18px;
+    border-radius: 9px;
+    font-weight: bold;
+}
+
+.download:hover {
+    background: #1d4ed8;
+}
 
 .loading {
-    color: #007bff;
+    color: #6b7280;
 }
-
 
 .error {
-    color: red;
+    color: #dc2626;
 }
 
-
+.empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 30px;
+}
 </style>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
+        type="module"></script>
+
+<!-- Tesseract.js -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 </head>
 
-
 <body>
 
+<header>
+    <h1>Phidel VGP</h1>
 
-<div class="header">
-    Phidel VGP
-</div>
+    <input
+        id="search"
+        class="search"
+        type="search"
+        placeholder="Rechercher un document..."
+        autocomplete="off"
+    >
+</header>
 
-
-<div class="container">
-
-
-<input
-    id="search"
-    class="search-box"
-    type="text"
-    placeholder="Rechercher un fichier..."
-    oninput="searchFiles()"
->
-
-
-<div
-    id="status"
-    class="status"
->
+<div id="status">
     Chargement des documents...
 </div>
 
+<div id="documents"></div>
 
-<div id="files-container"></div>
-
-
-</div>
-
-
-
-<!-- PDF.JS -->
 
 <script type="module">
 
-import * as pdfjsLib from
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+/* =========================================================
+   CONFIGURATION
+========================================================= */
 
+const SITE = "https://phidelvgp.github.io/AERIAL-LOC/";
+
+const API =
+    "https://api.github.com/repos/PhidelVGP/AERIAL-LOC/contents/?ref=main";
 
 
 /* =========================================================
-   CONFIGURATION
-   ========================================================= */
+   ÉLÉMENTS DE LA PAGE
+========================================================= */
+
+const documentsContainer = document.getElementById("documents");
+const statusElement = document.getElementById("status");
+const searchElement = document.getElementById("search");
 
 
-const OWNER =
-    "PhidelVGP";
-
-
-const REPO =
-    "AERIAL-LOC";
-
-
-const BRANCH =
-    "main";
-
-
-const SITE =
-    "https://phidelvgp.github.io/AERIAL-LOC/";
-
-
+/* =========================================================
+   LISTE DES PDF
+========================================================= */
 
 let files = [];
 
 
-
-const filesContainer =
-    document.getElementById(
-        "files-container"
-    );
-
-
-const status =
-    document.getElementById(
-        "status"
-    );
-
-
-
 /* =========================================================
-   URL DES PDF
-   ========================================================= */
-
-
-function fileUrl(name) {
-
-    return (
-        SITE +
-        encodeURIComponent(name)
-    );
-
-}
-
-
-
-/* =========================================================
-   RÉCUPÉRATION AUTOMATIQUE DES PDF
-   ========================================================= */
-
+   RÉCUPÉRER AUTOMATIQUEMENT LES PDF SUR GITHUB
+========================================================= */
 
 async function getPDFs() {
 
-    const url =
-        `https://api.github.com/repos/${OWNER}/${REPO}/contents/?ref=${BRANCH}`;
-
-
-    const response =
-        await fetch(url);
-
+    const response = await fetch(API);
 
     if (!response.ok) {
-
-        throw new Error(
-            "Impossible de récupérer les fichiers GitHub."
-        );
-
+        throw new Error("Impossible de récupérer les fichiers GitHub.");
     }
 
+    const data = await response.json();
 
-    const data =
-        await response.json();
-
-
-    return data.filter(
-        file =>
-
-            file.type === "file" &&
-
-            file.name
-                .toLowerCase()
-                .endsWith(".pdf")
-    );
-
+    return data
+        .filter(item =>
+            item.type === "file" &&
+            item.name.toLowerCase().endsWith(".pdf")
+        )
+        .map(item => ({
+            name: item.name,
+            file: item.name
+        }))
+        .sort((a, b) =>
+            a.name.localeCompare(b.name, "fr", {
+                numeric: true
+            })
+        );
 }
 
 
-
 /* =========================================================
-   NORMALISATION DU TEXTE OCR
-   ========================================================= */
-
+   EXTRAIRE LES DATES D'UN TEXTE OCR
+========================================================= */
 
 function normalizeText(text) {
 
     return text
         .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        )
-        .replace(
-            /\s+/g,
-            " "
-        )
-        .trim()
-        .toLowerCase();
-
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\r/g, "\n")
+        .replace(/[ \t]+/g, " ");
 }
 
 
-
 /* =========================================================
-   EXTRACTION DES DATES
-   ========================================================= */
+   TROUVER UNE DATE DANS UNE LIGNE
+========================================================= */
 
+function findDate(text) {
 
-function extractDate(
-    text,
-    type
-) {
-
-    const normalized =
-        normalizeText(text);
-
-
-    let regex;
-
-
-    if (type === "verified") {
-
-        regex =
-            /verif(?:ie|iee|iee|i[eé]?)?\s*le\s*:?\s*(\d{1,2}\s*[\/.-]\s*\d{1,2}\s*[\/.-]\s*\d{4})/i;
-
-    }
-
-
-    else if (type === "validity") {
-
-        regex =
-            /a\s*verifier\s*avant\s*le\s*:?\s*(\d{1,2}\s*[\/.-]\s*\d{1,2}\s*[\/.-]\s*\d{4})/i;
-
-    }
-
-
-    if (!regex) {
-
-        return "";
-
-    }
-
-
-    const match =
-        normalized.match(regex);
-
+    const match = text.match(
+        /\b(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{4})\b/
+    );
 
     if (!match) {
-
-        return "";
-
+        return null;
     }
 
+    const day = match[1].padStart(2, "0");
+    const month = match[2].padStart(2, "0");
+    const year = match[3];
 
-    return match[1]
-        .replace(/\s/g, "")
-        .replace(/[.-]/g, "/");
-
+    return `${day}/${month}/${year}`;
 }
 
 
+/* =========================================================
+   ANALYSER LE TEXTE OCR
+========================================================= */
+
+function extractDates(text) {
+
+    const normalized = normalizeText(text);
+
+    const lines = normalized
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean);
+
+    let verified = null;
+    let validUntil = null;
+
+
+    for (const line of lines) {
+
+        const lower = line.toLowerCase();
+
+
+        /*
+         * Vérifié le
+         */
+
+        if (
+            !verified &&
+            lower.includes("verif") &&
+            (
+                lower.includes("le") ||
+                lower.includes("1e")
+            )
+        ) {
+            verified = findDate(line);
+        }
+
+
+        /*
+         * À vérifier avant le
+         */
+
+        if (
+            !validUntil &&
+            lower.includes("verif") &&
+            lower.includes("avant")
+        ) {
+            validUntil = findDate(line);
+        }
+    }
+
+
+    /*
+     * Deuxième recherche plus large
+     * si l'OCR a mal séparé les lignes.
+     */
+
+    if (!verified) {
+
+        const match = normalized.match(
+            /verif.{0,30}?(?:le|1e).{0,15}?(\d{1,2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{4})/i
+        );
+
+        if (match) {
+            verified = findDate(match[1]);
+        }
+    }
+
+
+    if (!validUntil) {
+
+        const match = normalized.match(
+            /a\s+verif.{0,30}?avant.{0,15}?(\d{1,2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{4})/i
+        );
+
+        if (match) {
+            validUntil = findDate(match[1]);
+        }
+    }
+
+
+    return {
+        verified,
+        validUntil
+    };
+}
+
 
 /* =========================================================
-   OCR D'UNE PAGE PDF
-   ========================================================= */
+   CHARGER PDF.JS
+========================================================= */
+
+let pdfjsLib;
 
 
-async function ocrPage(
-    page
-) {
+/*
+ * On importe PDF.js ici afin d'être certain
+ * qu'il est chargé avant de commencer l'OCR.
+ */
 
-    try {
+async function loadPDFJS() {
+
+    if (pdfjsLib) {
+        return pdfjsLib;
+    }
+
+    pdfjsLib = await import(
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
+    );
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+    return pdfjsLib;
+}
+
+
+/* =========================================================
+   WORKER TESSERACT
+========================================================= */
+
+let ocrWorker = null;
+
+let ocrWorkerPromise = null;
+
+
+/*
+ * On utilise UN SEUL worker Tesseract
+ * et on le réutilise pour tous les PDF.
+ */
+
+async function getOCRWorker() {
+
+    if (ocrWorker) {
+        return ocrWorker;
+    }
+
+    if (ocrWorkerPromise) {
+        return ocrWorkerPromise;
+    }
+
+    ocrWorkerPromise = (async () => {
+
+        if (!window.Tesseract) {
+            throw new Error("Tesseract n'est pas chargé.");
+        }
+
+        const worker =
+            await Tesseract.createWorker("fra");
+
+        ocrWorker = worker;
+
+        return worker;
+
+    })();
+
+    return ocrWorkerPromise;
+}
+
+
+/* =========================================================
+   OCR DU PDF
+========================================================= */
+
+async function readPDF(filename) {
+
+    const pdfjs = await loadPDFJS();
+
+    const worker = await getOCRWorker();
+
+
+    const url =
+        SITE + encodeURIComponent(filename);
+
+
+    const loadingTask =
+        pdfjs.getDocument(url);
+
+    const pdf =
+        await loadingTask.promise;
+
+
+    /*
+     * On commence par la première page.
+     * C'est normalement là que se trouvent
+     * les informations VGP.
+     */
+
+    const maxPages =
+        Math.min(pdf.numPages, 3);
+
+
+    let completeText = "";
+
+
+    for (let pageNumber = 1;
+         pageNumber <= maxPages;
+         pageNumber++) {
+
+
+        const page =
+            await pdf.getPage(pageNumber);
+
+
+        /*
+         * Une échelle de 2 permet généralement
+         * d'avoir une image suffisamment nette
+         * pour l'OCR.
+         */
 
         const viewport =
             page.getViewport({
@@ -364,730 +459,288 @@ async function ocrPage(
 
 
         const canvas =
-            document.createElement(
-                "canvas"
-            );
+            document.createElement("canvas");
 
 
         const context =
-            canvas.getContext(
-                "2d"
-            );
+            canvas.getContext("2d");
 
 
         canvas.width =
-            viewport.width;
-
+            Math.ceil(viewport.width);
 
         canvas.height =
-            viewport.height;
+            Math.ceil(viewport.height);
 
 
         await page.render({
-
-            canvasContext:
-                context,
-
-            viewport:
-                viewport
-
+            canvasContext: context,
+            viewport: viewport
         }).promise;
 
 
-        if (
-            typeof Tesseract ===
-            "undefined"
-        ) {
-
-            throw new Error(
-                "OCR non chargé."
-            );
-
-        }
-
+        /*
+         * OCR de la page.
+         */
 
         const result =
-            await Tesseract.recognize(
-
-                canvas,
-
-                "fra",
-
-                {
-
-                    logger:
-                        function(info) {
-
-                            if (
-                                info.status ===
-                                "recognizing text"
-                            ) {
-
-                                console.log(
-                                    "OCR :",
-                                    Math.round(
-                                        info.progress * 100
-                                    ) + "%"
-                                );
-
-                            }
-
-                        }
-
-                }
-
-            );
+            await worker.recognize(canvas);
 
 
-        return result.data.text || "";
-
-    }
-
-    catch (error) {
-
-        console.log(
-            "Erreur OCR :",
-            error
-        );
-
-
-        return "";
-
-    }
-
-}
-
-
-
-/* =========================================================
-   LECTURE DU PDF
-   ========================================================= */
-
-
-async function readPDF(
-    pdfUrl
-) {
-
-    try {
-
-        const response =
-            await fetch(
-                pdfUrl
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "PDF inaccessible."
-            );
-
-        }
-
-
-        const data =
-            await response.arrayBuffer();
-
-
-        const pdf =
-            await pdfjsLib.getDocument({
-
-                data:
-                    data,
-
-                disableWorker:
-                    true
-
-            }).promise;
-
-
-        let completeText =
-            "";
+        completeText +=
+            "\n" + result.data.text;
 
 
         /*
-         * On lit les 3 premières pages.
-         * Les informations VGP sont généralement
-         * présentes sur la première page.
+         * Si les deux dates sont déjà trouvées,
+         * inutile de continuer à scanner.
          */
-
-
-        const maxPages =
-            Math.min(
-                pdf.numPages,
-                3
-            );
-
-
-        for (
-            let pageNumber = 1;
-            pageNumber <= maxPages;
-            pageNumber++
-        ) {
-
-            status.textContent =
-                "Lecture du PDF — page " +
-                pageNumber +
-                "/" +
-                maxPages +
-                "...";
-
-
-            const page =
-                await pdf.getPage(
-                    pageNumber
-                );
-
-
-            /*
-             * Première tentative :
-             * lecture directe du texte.
-             */
-
-
-            try {
-
-                const content =
-                    await page.getTextContent();
-
-
-                const pageText =
-                    content.items
-                        .map(
-                            item => item.str
-                        )
-                        .join(" ");
-
-
-                completeText +=
-                    " " +
-                    pageText;
-
-            }
-
-            catch (error) {
-
-                console.log(
-                    "Texte PDF impossible :",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /*
-         * On cherche d'abord les dates
-         * dans le texte directement.
-         */
-
-
-        let verified =
-            extractDate(
-                completeText,
-                "verified"
-            );
-
-
-        let validity =
-            extractDate(
-                completeText,
-                "validity"
-            );
-
-
-        /*
-         * Si les dates ne sont pas trouvées,
-         * on utilise l'OCR.
-         */
-
-
-        if (
-            !verified ||
-            !validity
-        ) {
-
-            completeText =
-                "";
-
-
-            for (
-                let pageNumber = 1;
-                pageNumber <= maxPages;
-                pageNumber++
-            ) {
-
-                status.textContent =
-                    "Reconnaissance du texte du PDF — page " +
-                    pageNumber +
-                    "/" +
-                    maxPages +
-                    "...";
-
-
-                const page =
-                    await pdf.getPage(
-                        pageNumber
-                    );
-
-
-                const ocrText =
-                    await ocrPage(
-                        page
-                    );
-
-
-                completeText +=
-                    " " +
-                    ocrText;
-
-
-                /*
-                 * On vérifie après chaque page.
-                 * Si les deux dates sont trouvées,
-                 * on arrête l'OCR.
-                 */
-
-
-                verified =
-                    extractDate(
-                        completeText,
-                        "verified"
-                    );
-
-
-                validity =
-                    extractDate(
-                        completeText,
-                        "validity"
-                    );
-
-
-                if (
-                    verified &&
-                    validity
-                ) {
-
-                    break;
-
-                }
-
-            }
-
-        }
-
-
-        return {
-
-            verified:
-                verified,
-
-            validity:
-                validity
-
-        };
-
-    }
-
-    catch (error) {
-
-        console.log(
-            "Impossible de lire le PDF :",
-            error
-        );
-
-
-        return {
-
-            verified:
-                "",
-
-            validity:
-                ""
-
-        };
-
-    }
-
-}
-
-
-
-/* =========================================================
-   AFFICHAGE DES DOCUMENTS
-   ========================================================= */
-
-
-async function renderFiles() {
-
-    filesContainer.innerHTML =
-        "";
-
-
-    if (
-        files.length === 0
-    ) {
-
-        status.textContent =
-            "Aucun PDF trouvé.";
-
-
-        return;
-
-    }
-
-
-    status.textContent =
-        files.length +
-        " document(s) trouvé(s).";
-
-
-    for (
-        const f of files
-    ) {
-
-
-        const name =
-            f.name;
-
-
-        const fileDiv =
-            document.createElement(
-                "div"
-            );
-
-
-        fileDiv.className =
-            "file";
-
-
-
-        const leftDiv =
-            document.createElement(
-                "div"
-            );
-
-
-
-        const nameDiv =
-            document.createElement(
-                "div"
-            );
-
-
-        nameDiv.className =
-            "file-name";
-
-
-        nameDiv.textContent =
-            name;
-
-
-
-        /*
-         * Badge NEW
-         */
-
-
-        const badge =
-            document.createElement(
-                "span"
-            );
-
-
-        badge.className =
-            "new-badge";
-
-
-        badge.textContent =
-            "NEW";
-
-
-        nameDiv.appendChild(
-            badge
-        );
-
-
-
-        /*
-         * Zone des dates
-         */
-
-
-        const validityDiv =
-            document.createElement(
-                "div"
-            );
-
-
-        validityDiv.className =
-            "validity";
-
-
-        validityDiv.textContent =
-            "Lecture des dates...";
-
-
-        validityDiv.classList.add(
-            "loading"
-        );
-
-
-
-        leftDiv.appendChild(
-            nameDiv
-        );
-
-
-        leftDiv.appendChild(
-            validityDiv
-        );
-
-
-
-        /*
-         * Bouton téléchargement
-         */
-
-
-        const link =
-            document.createElement(
-                "a"
-            );
-
-
-        link.className =
-            "download-btn";
-
-
-        link.href =
-            fileUrl(
-                name
-            );
-
-
-        link.target =
-            "_blank";
-
-
-        link.rel =
-            "noopener";
-
-
-        link.textContent =
-            "Télécharger";
-
-
-
-        link.onclick =
-            function() {
-
-                localStorage.setItem(
-                    name,
-                    "downloaded"
-                );
-
-
-                badge.remove();
-
-            };
-
-
-
-        fileDiv.appendChild(
-            leftDiv
-        );
-
-
-        fileDiv.appendChild(
-            link
-        );
-
-
-        filesContainer.appendChild(
-            fileDiv
-        );
-
-
-
-        /*
-         * Lecture automatique des dates
-         */
-
 
         const dates =
-            await readPDF(
-                fileUrl(name)
-            );
-
-
-
-        validityDiv.classList.remove(
-            "loading"
-        );
-
-
-        validityDiv.innerHTML =
-            "";
-
+            extractDates(completeText);
 
 
         if (
-            dates.verified
+            dates.verified &&
+            dates.validUntil
         ) {
-
-            validityDiv.innerHTML +=
-
-                "Vérifié le : " +
-
-                dates.verified;
-
+            break;
         }
-
-
-
-        if (
-            dates.validity
-        ) {
-
-            if (
-                dates.verified
-            ) {
-
-                validityDiv.innerHTML +=
-                    "<br>";
-
-            }
-
-
-            validityDiv.innerHTML +=
-
-                "À vérifier avant le : " +
-
-                dates.validity;
-
-        }
-
-
-
-        if (
-            !dates.verified &&
-            !dates.validity
-        ) {
-
-            validityDiv.textContent =
-                "Dates non disponibles";
-
-        }
-
     }
 
 
-    status.textContent =
-        files.length +
-        " document(s) chargé(s).";
-
+    return extractDates(completeText);
 }
 
+
+/* =========================================================
+   AFFICHER UNE CARTE
+========================================================= */
+
+function createCard(file) {
+
+    const card =
+        document.createElement("div");
+
+    card.className = "card";
+
+
+    const title =
+        document.createElement("h2");
+
+    title.textContent =
+        file.name;
+
+
+    /*
+     * Badge NEW pour les nouveaux documents.
+     */
+
+    if (file.isNew) {
+
+        const badge =
+            document.createElement("span");
+
+        badge.className = "new";
+
+        badge.textContent = "NEW";
+
+        title.appendChild(badge);
+    }
+
+
+    const dates =
+        document.createElement("div");
+
+    dates.className = "dates loading";
+
+    dates.textContent =
+        "Lecture des dates…";
+
+
+    /*
+     * LIEN DIRECT VERS LE PDF
+     */
+
+    const link =
+        document.createElement("a");
+
+    link.className = "download";
+
+    link.textContent =
+        "Télécharger";
+
+    link.target =
+        "_blank";
+
+    link.rel =
+        "noopener";
+
+    link.href =
+        SITE + encodeURIComponent(file.name);
+
+
+    card.appendChild(title);
+    card.appendChild(dates);
+    card.appendChild(link);
+
+    documentsContainer.appendChild(card);
+
+
+    /*
+     * OCR lancé automatiquement.
+     */
+
+    readPDF(file.file)
+        .then(result => {
+
+            dates.className = "dates";
+
+
+            let html = "";
+
+
+            if (result.verified) {
+
+                html +=
+                    `<div>📅 <strong>Vérifié le :</strong> ${result.verified}</div>`;
+            }
+
+
+            if (result.validUntil) {
+
+                html +=
+                    `<div>📅 <strong>À vérifier avant le :</strong> ${result.validUntil}</div>`;
+            }
+
+
+            if (!html) {
+
+                html =
+                    `<div>Dates non disponibles</div>`;
+            }
+
+
+            dates.innerHTML =
+                html;
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Erreur OCR :",
+                file.name,
+                error
+            );
+
+
+            dates.className =
+                "dates error";
+
+            dates.textContent =
+                "Dates non disponibles";
+        });
+
+
+    return card;
+}
+
+
+/* =========================================================
+   AFFICHER TOUS LES DOCUMENTS
+========================================================= */
+
+function displayFiles(list) {
+
+    documentsContainer.innerHTML = "";
+
+
+    if (!list.length) {
+
+        documentsContainer.innerHTML =
+            `<div class="empty">
+                Aucun document trouvé.
+            </div>`;
+
+        return;
+    }
+
+
+    list.forEach(file => {
+        createCard(file);
+    });
+}
 
 
 /* =========================================================
    RECHERCHE
-   ========================================================= */
+========================================================= */
 
+searchElement.addEventListener(
+    "input",
+    () => {
 
-function searchFiles() {
-
-    const input =
-        document
-            .getElementById(
-                "search"
-            )
-            .value
-            .toLowerCase()
-            .trim();
-
-
-    const fileDivs =
-        document.getElementsByClassName(
-            "file"
-        );
-
-
-    for (
-        let i = 0;
-        i < fileDivs.length;
-        i++
-    ) {
-
-
-        const name =
-            fileDivs[i]
-                .getElementsByClassName(
-                    "file-name"
-                )[0]
-                .innerText
+        const query =
+            searchElement.value
+                .trim()
                 .toLowerCase();
 
 
-        if (
-            name.includes(
-                input
-            )
-        ) {
+        const filtered =
+            files.filter(file =>
+                file.name
+                    .toLowerCase()
+                    .includes(query)
+            );
 
-            fileDivs[i].style.display =
-                "flex";
 
-        }
-
-        else {
-
-            fileDivs[i].style.display =
-                "none";
-
-        }
-
+        displayFiles(filtered);
     }
-
-}
-
+);
 
 
 /* =========================================================
-   LANCEMENT
-   ========================================================= */
-
+   DÉMARRAGE
+========================================================= */
 
 async function start() {
 
     try {
 
-        status.textContent =
-            "Recherche des PDF...";
+        statusElement.textContent =
+            "Recherche des documents…";
 
 
         files =
             await getPDFs();
 
 
-        await renderFiles();
+        /*
+         * Les cartes apparaissent immédiatement.
+         */
 
+        displayFiles(files);
+
+
+        statusElement.textContent =
+            `${files.length} document(s) trouvé(s).`;
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        statusElement.textContent =
+            "Impossible de charger les documents.";
+
+
+        documentsContainer.innerHTML =
+            `<div class="empty">
+                Vérifie que le dépôt GitHub est public
+                et que GitHub Pages est activé.
+            </div>`;
     }
-
-    catch (error) {
-
-        console.error(
-            error
-        );
-
-
-        status.textContent =
-            "Erreur lors du chargement des documents.";
-
-    }
-
 }
 
 
@@ -1095,17 +748,11 @@ start();
 
 </script>
 
-
-<!-- =====================================================
-     TESSERACT OCR
-     ===================================================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-
 </body>
 </html>
 Annonce
 
+
+ 
 
  
