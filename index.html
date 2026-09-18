@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
 <title>Phidel VGP — Documents</title>
+
 
 <style>
 
@@ -13,6 +20,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
+
 .header {
     padding: 15px 20px;
     border-bottom: 2px solid #eee;
@@ -21,11 +29,13 @@ body {
     color: red;
 }
 
+
 .container {
     padding: 20px;
     max-width: 700px;
     margin: auto;
 }
+
 
 .search-box {
     box-sizing: border-box;
@@ -36,6 +46,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 6px;
 }
+
 
 .file {
     display: flex;
@@ -49,16 +60,20 @@ body {
     border-radius: 6px;
 }
 
+
 .file-name {
     font-size: 18px;
     font-weight: bold;
 }
 
+
 .validity {
     font-size: 14px;
     color: #666;
     margin-top: 5px;
+    line-height: 1.5;
 }
+
 
 .download-btn {
     background: #007bff;
@@ -70,6 +85,12 @@ body {
     white-space: nowrap;
 }
 
+
+.download-btn:hover {
+    background: #0056b3;
+}
+
+
 .new-badge {
     background: red;
     color: white;
@@ -79,21 +100,38 @@ body {
     margin-left: 10px;
 }
 
+
 .status {
     color: #666;
     margin-bottom: 15px;
 }
 
+
+.loading {
+    color: #007bff;
+}
+
+
+.error {
+    color: red;
+}
+
+
 </style>
+
 </head>
 
+
 <body>
+
 
 <div class="header">
     Phidel VGP
 </div>
 
+
 <div class="container">
+
 
 <input
     id="search"
@@ -103,46 +141,89 @@ body {
     oninput="searchFiles()"
 >
 
-<div id="status" class="status">
+
+<div
+    id="status"
+    class="status"
+>
     Chargement des documents...
 </div>
 
+
 <div id="files-container"></div>
+
 
 </div>
 
+
+
+<!-- PDF.JS -->
+
 <script type="module">
 
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+import * as pdfjsLib from
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
 
 
-const OWNER = "PhidelVGP";
 
-const REPO = "AERIAL-LOC";
+/* =========================================================
+   CONFIGURATION
+   ========================================================= */
 
-const BRANCH = "main";
 
-const SITE = "https://phidelvgp.github.io/AERIAL-LOC/";
+const OWNER =
+    "PhidelVGP";
+
+
+const REPO =
+    "AERIAL-LOC";
+
+
+const BRANCH =
+    "main";
+
+
+const SITE =
+    "https://phidelvgp.github.io/AERIAL-LOC/";
+
 
 
 let files = [];
 
 
+
 const filesContainer =
-    document.getElementById("files-container");
+    document.getElementById(
+        "files-container"
+    );
 
 
 const status =
-    document.getElementById("status");
+    document.getElementById(
+        "status"
+    );
 
+
+
+/* =========================================================
+   URL DES PDF
+   ========================================================= */
 
 
 function fileUrl(name) {
 
-    return SITE + encodeURIComponent(name);
+    return (
+        SITE +
+        encodeURIComponent(name)
+    );
 
 }
 
+
+
+/* =========================================================
+   RÉCUPÉRATION AUTOMATIQUE DES PDF
+   ========================================================= */
 
 
 async function getPDFs() {
@@ -158,7 +239,7 @@ async function getPDFs() {
     if (!response.ok) {
 
         throw new Error(
-            "Impossible de récupérer les fichiers."
+            "Impossible de récupérer les fichiers GitHub."
         );
 
     }
@@ -168,90 +249,204 @@ async function getPDFs() {
         await response.json();
 
 
-    return data.filter(file => {
+    return data.filter(
+        file =>
 
-        return (
             file.type === "file" &&
-            file.name.toLowerCase().endsWith(".pdf")
-        );
 
-    });
+            file.name
+                .toLowerCase()
+                .endsWith(".pdf")
+    );
 
 }
 
 
 
-async function getPDFText(url) {
+/* =========================================================
+   NORMALISATION DU TEXTE OCR
+   ========================================================= */
+
+
+function normalizeText(text) {
+
+    return text
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim()
+        .toLowerCase();
+
+}
+
+
+
+/* =========================================================
+   EXTRACTION DES DATES
+   ========================================================= */
+
+
+function extractDate(
+    text,
+    type
+) {
+
+    const normalized =
+        normalizeText(text);
+
+
+    let regex;
+
+
+    if (type === "verified") {
+
+        regex =
+            /verif(?:ie|iee|iee|i[eé]?)?\s*le\s*:?\s*(\d{1,2}\s*[\/.-]\s*\d{1,2}\s*[\/.-]\s*\d{4})/i;
+
+    }
+
+
+    else if (type === "validity") {
+
+        regex =
+            /a\s*verifier\s*avant\s*le\s*:?\s*(\d{1,2}\s*[\/.-]\s*\d{1,2}\s*[\/.-]\s*\d{4})/i;
+
+    }
+
+
+    if (!regex) {
+
+        return "";
+
+    }
+
+
+    const match =
+        normalized.match(regex);
+
+
+    if (!match) {
+
+        return "";
+
+    }
+
+
+    return match[1]
+        .replace(/\s/g, "")
+        .replace(/[.-]/g, "/");
+
+}
+
+
+
+/* =========================================================
+   OCR D'UNE PAGE PDF
+   ========================================================= */
+
+
+async function ocrPage(
+    page
+) {
 
     try {
 
-        const response =
-            await fetch(url);
+        const viewport =
+            page.getViewport({
+                scale: 2
+            });
 
 
-        if (!response.ok) {
+        const canvas =
+            document.createElement(
+                "canvas"
+            );
+
+
+        const context =
+            canvas.getContext(
+                "2d"
+            );
+
+
+        canvas.width =
+            viewport.width;
+
+
+        canvas.height =
+            viewport.height;
+
+
+        await page.render({
+
+            canvasContext:
+                context,
+
+            viewport:
+                viewport
+
+        }).promise;
+
+
+        if (
+            typeof Tesseract ===
+            "undefined"
+        ) {
 
             throw new Error(
-                "PDF inaccessible"
+                "OCR non chargé."
             );
 
         }
 
 
-        const data =
-            await response.arrayBuffer();
+        const result =
+            await Tesseract.recognize(
+
+                canvas,
+
+                "fra",
+
+                {
+
+                    logger:
+                        function(info) {
+
+                            if (
+                                info.status ===
+                                "recognizing text"
+                            ) {
+
+                                console.log(
+                                    "OCR :",
+                                    Math.round(
+                                        info.progress * 100
+                                    ) + "%"
+                                );
+
+                            }
+
+                        }
+
+                }
+
+            );
 
 
-        const pdf =
-            await pdfjsLib.getDocument({
-
-                data: data,
-
-                disableWorker: true
-
-            }).promise;
-
-
-        let text = "";
-
-
-        const maxPages =
-            Math.min(pdf.numPages, 3);
-
-
-        for (
-            let pageNumber = 1;
-            pageNumber <= maxPages;
-            pageNumber++
-        ) {
-
-            const page =
-                await pdf.getPage(pageNumber);
-
-
-            const content =
-                await page.getTextContent();
-
-
-            text +=
-                content.items
-                    .map(item => item.str)
-                    .join(" ") + " ";
-
-        }
-
-
-        return text.replace(
-            /\s+/g,
-            " "
-        );
+        return result.data.text || "";
 
     }
 
     catch (error) {
 
         console.log(
-            "Lecture du PDF impossible :",
+            "Erreur OCR :",
             error
         );
 
@@ -264,98 +459,279 @@ async function getPDFText(url) {
 
 
 
-function extractDate(text, label) {
-
-    const escaped =
-        label.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            "\\$&"
-        );
+/* =========================================================
+   LECTURE DU PDF
+   ========================================================= */
 
 
-    const regex =
-        new RegExp(
-            escaped +
-            "\\s*:?\\s*" +
-            "(\\d{1,2}[\\/.-]\\d{1,2}[\\/.-]\\d{4})",
-            "i"
-        );
+async function readPDF(
+    pdfUrl
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                pdfUrl
+            );
 
 
-    const match =
-        text.match(regex);
+        if (!response.ok) {
+
+            throw new Error(
+                "PDF inaccessible."
+            );
+
+        }
 
 
-    if (!match) {
-
-        return "";
-
-    }
+        const data =
+            await response.arrayBuffer();
 
 
-    return match[1].replace(
-        /[.-]/g,
-        "/"
-    );
+        const pdf =
+            await pdfjsLib.getDocument({
 
-}
+                data:
+                    data,
 
+                disableWorker:
+                    true
 
-
-async function getDates(pdfUrl) {
-
-    const text =
-        await getPDFText(pdfUrl);
+            }).promise;
 
 
-    if (!text) {
+        let completeText =
+            "";
+
+
+        /*
+         * On lit les 3 premières pages.
+         * Les informations VGP sont généralement
+         * présentes sur la première page.
+         */
+
+
+        const maxPages =
+            Math.min(
+                pdf.numPages,
+                3
+            );
+
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= maxPages;
+            pageNumber++
+        ) {
+
+            status.textContent =
+                "Lecture du PDF — page " +
+                pageNumber +
+                "/" +
+                maxPages +
+                "...";
+
+
+            const page =
+                await pdf.getPage(
+                    pageNumber
+                );
+
+
+            /*
+             * Première tentative :
+             * lecture directe du texte.
+             */
+
+
+            try {
+
+                const content =
+                    await page.getTextContent();
+
+
+                const pageText =
+                    content.items
+                        .map(
+                            item => item.str
+                        )
+                        .join(" ");
+
+
+                completeText +=
+                    " " +
+                    pageText;
+
+            }
+
+            catch (error) {
+
+                console.log(
+                    "Texte PDF impossible :",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /*
+         * On cherche d'abord les dates
+         * dans le texte directement.
+         */
+
+
+        let verified =
+            extractDate(
+                completeText,
+                "verified"
+            );
+
+
+        let validity =
+            extractDate(
+                completeText,
+                "validity"
+            );
+
+
+        /*
+         * Si les dates ne sont pas trouvées,
+         * on utilise l'OCR.
+         */
+
+
+        if (
+            !verified ||
+            !validity
+        ) {
+
+            completeText =
+                "";
+
+
+            for (
+                let pageNumber = 1;
+                pageNumber <= maxPages;
+                pageNumber++
+            ) {
+
+                status.textContent =
+                    "Reconnaissance du texte du PDF — page " +
+                    pageNumber +
+                    "/" +
+                    maxPages +
+                    "...";
+
+
+                const page =
+                    await pdf.getPage(
+                        pageNumber
+                    );
+
+
+                const ocrText =
+                    await ocrPage(
+                        page
+                    );
+
+
+                completeText +=
+                    " " +
+                    ocrText;
+
+
+                /*
+                 * On vérifie après chaque page.
+                 * Si les deux dates sont trouvées,
+                 * on arrête l'OCR.
+                 */
+
+
+                verified =
+                    extractDate(
+                        completeText,
+                        "verified"
+                    );
+
+
+                validity =
+                    extractDate(
+                        completeText,
+                        "validity"
+                    );
+
+
+                if (
+                    verified &&
+                    validity
+                ) {
+
+                    break;
+
+                }
+
+            }
+
+        }
+
 
         return {
 
-            verified: "",
+            verified:
+                verified,
 
-            validity: ""
+            validity:
+                validity
 
         };
 
     }
 
+    catch (error) {
 
-    const verified =
-        extractDate(
-            text,
-            "Vérifié le"
+        console.log(
+            "Impossible de lire le PDF :",
+            error
         );
 
 
-    const validity =
-        extractDate(
-            text,
-            "À vérifier avant le"
-        );
+        return {
 
+            verified:
+                "",
 
-    return {
+            validity:
+                ""
 
-        verified: verified,
+        };
 
-        validity: validity
-
-    };
+    }
 
 }
 
 
 
+/* =========================================================
+   AFFICHAGE DES DOCUMENTS
+   ========================================================= */
+
+
 async function renderFiles() {
 
-    filesContainer.innerHTML = "";
+    filesContainer.innerHTML =
+        "";
 
 
-    if (files.length === 0) {
+    if (
+        files.length === 0
+    ) {
 
         status.textContent =
             "Aucun PDF trouvé.";
+
 
         return;
 
@@ -363,29 +739,41 @@ async function renderFiles() {
 
 
     status.textContent =
-        `${files.length} document(s) trouvé(s).`;
+        files.length +
+        " document(s) trouvé(s).";
 
 
-    for (const f of files) {
+    for (
+        const f of files
+    ) {
+
 
         const name =
             f.name;
 
 
         const fileDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         fileDiv.className =
             "file";
 
 
+
         const leftDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
 
         const nameDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         nameDiv.className =
@@ -397,8 +785,15 @@ async function renderFiles() {
 
 
 
+        /*
+         * Badge NEW
+         */
+
+
         const badge =
-            document.createElement("span");
+            document.createElement(
+                "span"
+            );
 
 
         badge.className =
@@ -415,8 +810,15 @@ async function renderFiles() {
 
 
 
+        /*
+         * Zone des dates
+         */
+
+
         const validityDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         validityDiv.className =
@@ -425,6 +827,11 @@ async function renderFiles() {
 
         validityDiv.textContent =
             "Lecture des dates...";
+
+
+        validityDiv.classList.add(
+            "loading"
+        );
 
 
 
@@ -439,8 +846,15 @@ async function renderFiles() {
 
 
 
+        /*
+         * Bouton téléchargement
+         */
+
+
         const link =
-            document.createElement("a");
+            document.createElement(
+                "a"
+            );
 
 
         link.className =
@@ -448,11 +862,17 @@ async function renderFiles() {
 
 
         link.href =
-            fileUrl(name);
+            fileUrl(
+                name
+            );
 
 
         link.target =
             "_blank";
+
+
+        link.rel =
+            "noopener";
 
 
         link.textContent =
@@ -491,11 +911,21 @@ async function renderFiles() {
 
 
 
+        /*
+         * Lecture automatique des dates
+         */
+
+
         const dates =
-            await getDates(
+            await readPDF(
                 fileUrl(name)
             );
 
+
+
+        validityDiv.classList.remove(
+            "loading"
+        );
 
 
         validityDiv.innerHTML =
@@ -503,19 +933,27 @@ async function renderFiles() {
 
 
 
-        if (dates.verified) {
+        if (
+            dates.verified
+        ) {
 
             validityDiv.innerHTML +=
+
                 "Vérifié le : " +
+
                 dates.verified;
 
         }
 
 
 
-        if (dates.validity) {
+        if (
+            dates.validity
+        ) {
 
-            if (dates.verified) {
+            if (
+                dates.verified
+            ) {
 
                 validityDiv.innerHTML +=
                     "<br>";
@@ -524,7 +962,9 @@ async function renderFiles() {
 
 
             validityDiv.innerHTML +=
+
                 "À vérifier avant le : " +
+
                 dates.validity;
 
         }
@@ -543,22 +983,36 @@ async function renderFiles() {
 
     }
 
+
+    status.textContent =
+        files.length +
+        " document(s) chargé(s).";
+
 }
 
+
+
+/* =========================================================
+   RECHERCHE
+   ========================================================= */
 
 
 function searchFiles() {
 
     const input =
         document
-            .getElementById("search")
+            .getElementById(
+                "search"
+            )
             .value
             .toLowerCase()
             .trim();
 
 
     const fileDivs =
-        document.getElementsByClassName("file");
+        document.getElementsByClassName(
+            "file"
+        );
 
 
     for (
@@ -567,14 +1021,21 @@ function searchFiles() {
         i++
     ) {
 
+
         const name =
             fileDivs[i]
-                .getElementsByClassName("file-name")[0]
+                .getElementsByClassName(
+                    "file-name"
+                )[0]
                 .innerText
                 .toLowerCase();
 
 
-        if (name.includes(input)) {
+        if (
+            name.includes(
+                input
+            )
+        ) {
 
             fileDivs[i].style.display =
                 "flex";
@@ -592,6 +1053,11 @@ function searchFiles() {
 
 }
 
+
+
+/* =========================================================
+   LANCEMENT
+   ========================================================= */
 
 
 async function start() {
@@ -612,7 +1078,9 @@ async function start() {
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
 
         status.textContent =
@@ -623,14 +1091,20 @@ async function start() {
 }
 
 
-
 start();
 
 </script>
 
+
+<!-- =====================================================
+     TESSERACT OCR
+     ===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+
 </body>
 </html>
-
 Annonce
 
 
