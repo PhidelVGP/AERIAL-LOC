@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PHIDEL VGP — Documents</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#fff;
+    color:#123f64;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+/* =========================================================
+   HEADER — STYLE DE LA PRÉSENTATION
+========================================================= */
+
+header{
+    position:relative;
+    min-height:270px;
+    padding:55px 20px 32px;
+    overflow:hidden;
+    background:
+        radial-gradient(ellipse at left top,#eef8ff 0,#fff 48%),
+        radial-gradient(ellipse at right top,#eef8ff 0,#fff 48%);
+}
+
+.logo{
+    position:relative;
+    z-index:5;
+    text-align:center;
+    color:#e30613;
+    font-size:52px;
+    line-height:1;
+    font-weight:900;
+    letter-spacing:1px;
+    margin:18px 0 32px;
+    animation:logoAppear .8s ease both;
+}
+
+/* =========================================================
+   ILLUSTRATION CHARIOT
+========================================================= */
+
+.forklift{
+    position:absolute;
+    left:28px;
+    bottom:25px;
+    width:300px;
+    height:190px;
+    z-index:3;
+    animation:machineLeft 1s ease-out both;
+}
+
+.forklift .body{
+    position:absolute;
+    left:58px;
+    bottom:30px;
+    width:135px;
+    height:65px;
+    background:linear-gradient(145deg,#ffd51a,#e9ae00);
+    border-radius:14px 18px 10px 12px;
+    box-shadow:inset -7px -7px 0 rgba(0,0,0,.08);
+}
+
+.forklift .rear{
+    position:absolute;
+    left:40px;
+    bottom:43px;
+    width:35px;
+    height:50px;
+    background:#f1bd00;
+    border-radius:9px;
+}
+
+.forklift .seat{
+    position:absolute;
+    left:135px;
+    bottom:88px;
+    width:45px;
+    height:27px;
+    background:#20252a;
+    border-radius:8px 8px 3px 3px;
+}
+
+.forklift .seatback{
+    position:absolute;
+    left:129px;
+    bottom:106px;
+    width:10px;
+    height:35px;
+    background:#252a2e;
+    border-radius:5px;
+}
+
+.forklift .roof-left,
+.forklift .roof-right{
+    position:absolute;
+    bottom:108px;
+    width:7px;
+    height:65px;
+    background:#30353a;
+    border-radius:3px;
+}
+
+.forklift .roof-left{left:126px}
+.forklift .roof-right{left:185px}
+
+.forklift .roof{
+    position:absolute;
+    left:126px;
+    bottom:168px;
+    width:66px;
+    height:8px;
+    background:#30353a;
+    border-radius:4px;
+}
+
+.forklift .mast{
+    position:absolute;
+    left:190px;
+    bottom:32px;
+    width:13px;
+    height:140px;
+    background:#25292c;
+    border-radius:4px;
+}
+
+.forklift .mast2{
+    position:absolute;
+    left:208px;
+    bottom:32px;
+    width:7px;
+    height:132px;
+    background:#40464b;
+}
+
+.forklift .forkA,
+.forklift .forkB{
+    position:absolute;
+    left:8px;
+    width:205px;
+    height:8px;
+    background:#303438;
+    border-radius:4px;
+}
+
+.forklift .forkA{bottom:32px}
+.forklift .forkB{bottom:19px}
+
+.forklift .wheel{
+    position:absolute;
+    bottom:7px;
+    width:43px;
+    height:43px;
+    background:#24282b;
+    border-radius:50%;
+    box-shadow:inset 0 0 0 8px #555;
+}
+
+.forklift .wheel1{left:70px}
+.forklift .wheel2{left:164px}
+
+/* =========================================================
+   ILLUSTRATION NACELLE
+========================================================= */
+
+.lift{
+    position:absolute;
+    right:25px;
+    bottom:22px;
+    width:310px;
+    height:205px;
+    z-index:3;
+    animation:machineRight 1s ease-out both;
+}
+
+.lift .base{
+    position:absolute;
+    right:35px;
+    bottom:22px;
+    width:120px;
+    height:54px;
+    background:linear-gradient(145deg,#ffb51b,#e58b00);
+    border-radius:15px;
+    box-shadow:inset -7px -7px 0 rgba(0,0,0,.08);
+}
+
+.lift .counter{
+    position:absolute;
+    right:133px;
+    bottom:35px;
+    width:38px;
+    height:42px;
+    background:#e99a00;
+    border-radius:10px;
+}
+
+.lift .wheel{
+    position:absolute;
+    bottom:2px;
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#25292c;
+    box-shadow:inset 0 0 0 9px #555;
+}
+
+.lift .wheel1{right:35px}
+.lift .wheel2{right:130px}
+
+.lift .boom1{
+    position:absolute;
+    right:128px;
+    bottom:62px;
+    width:25px;
+    height:105px;
+    background:#f39b00;
+    border-radius:8px;
+    transform:rotate(-25deg);
+    transform-origin:bottom;
+}
+
+.lift .boom2{
+    position:absolute;
+    right:73px;
+    bottom:123px;
+    width:24px;
+    height:115px;
+    background:#f5a300;
+    border-radius:8px;
+    transform:rotate(62deg);
+    transform-origin:bottom;
+}
+
+.lift .basket{
+    position:absolute;
+    right:0;
+    top:7px;
+    width:78px;
+    height:52px;
+    border:7px solid #f19a00;
+    background:#ffc23b;
+    border-radius:5px;
+}
+
+.lift .person{
+    position:absolute;
+    right:27px;
+    top:-25px;
+    width:19px;
+    height:28px;
+    background:#283039;
+    border-radius:50% 50% 35% 35%;
+}
+
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+.search-wrap{
+    position:relative;
+    z-index:10;
+    max-width:760px;
+    margin:auto;
+    animation:searchAppear .8s .2s ease both;
+}
+
+#search{
+    width:100%;
+    height:58px;
+    padding:0 28px;
+    border:1px solid #d1dce5;
+    border-radius:32px;
+    background:#fff;
+    outline:none;
+    font-size:17px;
+    color:#234;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+#search::placeholder{
+    color:#9ba6ae;
+}
+
+#search:focus{
+    border-color:#1683d8;
+}
+
+/* =========================================================
+   ZONE DOCUMENTS
+========================================================= */
+
+.documents-area{
+    position:relative;
+    z-index:5;
+    min-height:600px;
+    padding:35px 18px 60px;
+    background:#dff2ff;
+    border-radius:40px 40px 0 0;
+}
+
+.documents-title{
+    margin:0 0 30px;
+    text-align:center;
+    color:#16466c;
+    font-size:30px;
+    font-weight:800;
+}
+
+#documents{
+    width:100%;
+    max-width:900px;
+    margin:auto;
+}
+
+/* =========================================================
+   CARTES
+========================================================= */
+
+.document-card{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    min-height:105px;
+    margin-bottom:15px;
+    padding:18px 20px;
+    background:#fff;
+    border-radius:17px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+    animation:cardAppear .45s ease both;
+    transition:transform .2s,box-shadow .2s;
+}
+
+.document-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.11);
+}
+
+.pdf-icon{
+    flex:none;
+    width:62px;
+    height:68px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#e30613;
+    color:#fff;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:900;
+}
+
+.document-info{
+    flex:1;
+    min-width:0;
+}
+
+.document-name{
+    margin-bottom:8px;
+    color:#173e60;
+    font-size:18px;
+    font-weight:800;
+    word-break:break-word;
+}
+
+.date{
+    margin:4px 0;
+    color:#596975;
+    font-size:14px;
+}
+
+.new-badge{
+    display:inline-block;
+    margin-left:8px;
+    padding:4px 9px;
+    border-radius:15px;
+    background:#e30613;
+    color:#fff;
+    font-size:10px;
+    font-weight:900;
+    vertical-align:middle;
+}
+
+.download{
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:125px;
+    padding:12px 18px;
+    border-radius:10px;
+    background:#1683d8;
+    color:#fff;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:700;
+    transition:.2s;
+}
+
+.download:hover{
+    background:#0872c4;
+    transform:scale(1.02);
+}
+
+.loading{
+    padding:55px 10px;
+    text-align:center;
+    color:#65727c;
+    font-size:16px;
+}
+
+.error{
+    padding:40px 20px;
+    text-align:center;
+    color:#c40000;
+}
+
+/* =========================================================
+   FOOTER OCR
+========================================================= */
+
+.ocr-note{
+    margin-top:20px;
+    text-align:center;
+    color:#597789;
+    font-size:12px;
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes logoAppear{
+    from{
+        opacity:0;
+        transform:scale(.85);
+    }
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+@keyframes searchAppear{
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes machineLeft{
+    from{
+        opacity:0;
+        transform:translateX(-130px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@keyframes machineRight{
+    from{
+        opacity:0;
+        transform:translateX(130px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@keyframes cardAppear{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:700px){
+
+    header{
+        min-height:300px;
+        padding-top:38px;
+    }
+
+    .logo{
+        font-size:32px;
+        margin-bottom:115px;
+    }
+
+    .forklift{
+        left:-48px;
+        bottom:45px;
+        transform:scale(.63);
+        transform-origin:left bottom;
+    }
+
+    .lift{
+        right:-55px;
+        bottom:42px;
+        transform:scale(.63);
+        transform-origin:right bottom;
+    }
+
+    .search-wrap{
+        padding:0 5px;
+    }
+
+    .documents-area{
+        padding:28px 10px 50px;
+        border-radius:28px 28px 0 0;
+    }
+
+    .documents-title{
+        font-size:25px;
+    }
+
+    .document-card{
+        flex-wrap:wrap;
+        padding:16px;
+        gap:13px;
+    }
+
+    .document-info{
+        width:calc(100% - 78px);
+    }
+
+    .download{
+        width:100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <!-- CHARIOT ÉLÉVATEUR -->
+    <div class="forklift">
+
+        <div class="rear"></div>
+        <div class="body"></div>
+
+        <div class="seat"></div>
+        <div class="seatback"></div>
+
+        <div class="roof-left"></div>
+        <div class="roof-right"></div>
+        <div class="roof"></div>
+
+        <div class="mast"></div>
+        <div class="mast2"></div>
+
+        <div class="forkA"></div>
+        <div class="forkB"></div>
+
+        <div class="wheel wheel1"></div>
+        <div class="wheel wheel2"></div>
+
+    </div>
+
+
+    <!-- LOGO -->
+    <div class="logo">
+        PHIDEL VGP
+    </div>
+
+
+    <!-- NACELLE -->
+    <div class="lift">
+
+        <div class="base"></div>
+        <div class="counter"></div>
+
+        <div class="boom1"></div>
+        <div class="boom2"></div>
+
+        <div class="basket"></div>
+        <div class="person"></div>
+
+        <div class="wheel wheel1"></div>
+        <div class="wheel wheel2"></div>
+
+    </div>
+
+
+    <!-- RECHERCHE -->
+    <div class="search-wrap">
+
+        <input
+            id="search"
+            type="text"
+            placeholder="Rechercher un document..."
+            autocomplete="off"
+        >
+
+    </div>
+
+</header>
+
+
+<section class="documents-area">
+
+    <h1 class="documents-title">
+        Documents disponibles
+    </h1>
+
+    <div id="documents">
+
+        <div class="loading">
+            Chargement des documents...
+        </div>
+
+    </div>
+
+    <div class="ocr-note">
+        ↻ Les dates sont extraites automatiquement des documents (OCR).
+    </div>
+
+</section>
+
+
+<script type="module">
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const SITE =
+    "https://phidelvgp.github.io/AERIAL-LOC/";
+
+const API =
+    "https://api.github.com/repos/PhidelVGP/AERIAL-LOC/contents/?ref=main";
+
+const container =
+    document.getElementById("documents");
+
+const search =
+    document.getElementById("search");
+
+let documents = [];
+
+let ocrWorker = null;
+
+
+/* =========================================================
+   NETTOYAGE DU NOM
+========================================================= */
+
+function cleanName(name){
+
+    return name
+        .replace(/\.pdf$/i,"")
+        .trim();
+
+}
+
+
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+function filteredDocuments(){
+
+    const q =
+        search.value
+            .toLowerCase()
+            .trim();
+
+    if(!q){
+        return documents;
+    }
+
+    return documents.filter(doc =>
+        doc.name
+            .toLowerCase()
+            .includes(q)
+    );
+
+}
+
+
+/* =========================================================
+   AFFICHAGE
+========================================================= */
+
+function displayDocuments(list){
+
+    container.innerHTML = "";
+
+    if(!list.length){
+
+        container.innerHTML =
+            `<div class="loading">
+                Aucun document trouvé.
+            </div>`;
+
+        return;
+    }
+
+
+    list.forEach((doc,index)=>{
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "document-card";
+
+        card.style.animationDelay =
+            `${index * .04}s`;
+
+
+        const downloaded =
+            localStorage.getItem(
+                "phidelvgp_downloaded_" + doc.name
+            ) === "true";
+
+
+        const badge =
+            downloaded
+            ? ""
+            : `<span class="new-badge">NEW</span>`;
+
+
+        const verified =
+            doc.verified ||
+            "date non disponible";
+
+
+        const nextCheck =
+            doc.nextCheck ||
+            "date non disponible";
+
+
+        const url =
+            SITE +
+            encodeURIComponent(doc.name);
+
+
+        card.innerHTML = `
+
+            <div class="pdf-icon">
+                PDF
+            </div>
+
+            <div class="document-info">
+
+                <div class="document-name">
+                    ${cleanName(doc.name)}
+                    ${badge}
+                </div>
+
+                <div class="date">
+                    Vérifié le : ${verified}
+                </div>
+
+                <div class="date">
+                    À vérifier avant le : ${nextCheck}
+                </div>
+
+            </div>
+
+            <a
+                class="download"
+                href="${url}"
+                download="${doc.name}"
+            >
+                Télécharger
+            </a>
+
+        `;
+
+
+        card
+            .querySelector(".download")
+            .addEventListener("click",()=>{
+
+                localStorage.setItem(
+                    "phidelvgp_downloaded_" + doc.name,
+                    "true"
+                );
+
+                const badgeElement =
+                    card.querySelector(".new-badge");
+
+                if(badgeElement){
+                    badgeElement.remove();
+                }
+
+            });
+
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+/* =========================================================
+   RECHERCHE DE DATES DANS LE TEXTE PDF
+========================================================= */
+
+function extractDates(text){
+
+    if(!text){
+        return {
+            verified:null,
+            nextCheck:null
+        };
+    }
+
+
+    const clean =
+        text
+            .replace(/\u00a0/g," ")
+            .replace(/[|]/g," ")
+            .replace(/\s+/g," ");
+
+
+    /*
+       On accepte plusieurs formes :
+
+       Vérifié le : 11/08/2026
+       Vérifie le : 11/08/2026
+       Verifie le : 11-08-2026
+       Vérifié : 11/08/2026
+    */
+
+    const verifiedRegex =
+        /v[ée]rifi[ée]?\s*(?:le)?\s*:?\s*(\d{1,2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{2,4})/i;
+
+
+    /*
+       À vérifier avant le : 11/02/2027
+       A vérifier avant le : 11/02/2027
+       Vérification suivante : ...
+    */
+
+    const nextRegex =
+        /[àa]\s*v[ée]rifier\s*avant\s*(?:le)?\s*:?\s*(\d{1,2}\s*[\/.\-]\s*\d{1,2}\s*[\/.\-]\s*\d{2,4})/i;
+
+
+    let verified = null;
+    let nextCheck = null;
+
+
+    const a =
+        clean.match(verifiedRegex);
+
+    const b =
+        clean.match(nextRegex);
+
+
+    if(a){
+        verified =
+            normalizeDate(a[1]);
+    }
+
+
+    if(b){
+        nextCheck =
+            normalizeDate(b[1]);
+    }
+
+
+    return {
+        verified,
+        nextCheck
+    };
+
+}
+
+
+/* =========================================================
+   NORMALISATION DATE
+========================================================= */
+
+function normalizeDate(value){
+
+    return value
+        .replace(/\s/g,"")
+        .replace(/\./g,"/")
+        .replace(/-/g,"/");
+
+}
+
+
+/* =========================================================
+   PDF.JS : LECTURE DU TEXTE NATIF
+========================================================= */
+
+async function readNativePDFText(url){
+
+    try{
+
+        const pdfjsLib =
+            await import(
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
+            );
+
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+
+        const pdf =
+            await pdfjsLib
+                .getDocument(url)
+                .promise;
+
+
+        let completeText = "";
+
+
+        /*
+           On lit jusqu'à 10 pages.
+           Beaucoup de rapports VGP ont les dates
+           sur les premières pages.
+        */
+
+        const maxPages =
+            Math.min(pdf.numPages,10);
+
+
+        for(
+            let pageNumber = 1;
+            pageNumber <= maxPages;
+            pageNumber++
+        ){
+
+            const page =
+                await pdf.getPage(pageNumber);
+
+
+            const content =
+                await page.getTextContent();
+
+
+            const pageText =
+                content.items
+                    .map(item => item.str)
+                    .join(" ");
+
+
+            completeText +=
+                " " + pageText;
+
+
+            const dates =
+                extractDates(completeText);
+
+
+            if(
+                dates.verified &&
+                dates.nextCheck
+            ){
+
+                return {
+                    ...dates,
+                    pdf
+                };
+
+            }
+
+        }
+
+
+        return {
+            ...extractDates(completeText),
+            pdf
+        };
+
+
+    }catch(error){
+
+        console.log(
+            "Lecture texte PDF impossible:",
+            error
+        );
+
+        return {
+            verified:null,
+            nextCheck:null,
+            pdf:null
+        };
+
+    }
+
+}
+
+
+/* =========================================================
+   OCR
+========================================================= */
+
+async function readOCR(url,pdf){
+
+    try{
+
+        if(!pdf){
+            return {
+                verified:null,
+                nextCheck:null
+            };
+        }
+
+
+        if(!ocrWorker){
+
+            ocrWorker =
+                await window.Tesseract.createWorker("fra");
+
+        }
+
+
+        let verified = null;
+        let nextCheck = null;
+
+
+        /*
+           OCR des 6 premières pages.
+           On augmente la résolution pour les scans.
+        */
+
+        const maxPages =
+            Math.min(pdf.numPages,6);
+
+
+        for(
+            let pageNumber = 1;
+            pageNumber <= maxPages;
+            pageNumber++
+        ){
+
+            const page =
+                await pdf.getPage(pageNumber);
+
+
+            const viewport =
+                page.getViewport({
+                    scale:2.2
+                });
+
+
+            const canvas =
+                document.createElement("canvas");
+
+
+            const ctx =
+                canvas.getContext("2d");
+
+
+            canvas.width =
+                Math.floor(viewport.width);
+
+            canvas.height =
+                Math.floor(viewport.height);
+
+
+            await page.render({
+
+                canvasContext:ctx,
+                viewport
+
+            }).promise;
+
+
+            /*
+               Amélioration du scan :
+               fond blanc + contraste.
+            */
+
+            const image =
+                ctx.getImageData(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+            const data =
+                image.data;
+
+
+            for(
+                let i=0;
+                i<data.length;
+                i+=4
+            ){
+
+                const grey =
+                    (
+                        data[i] * .299 +
+                        data[i+1] * .587 +
+                        data[i+2] * .114
+                    );
+
+
+                const value =
+                    grey > 175
+                    ? 255
+                    : grey < 90
+                    ? 0
+                    : grey;
+
+
+                data[i] =
+                    value;
+
+                data[i+1] =
+                    value;
+
+                data[i+2] =
+                    value;
+
+            }
+
+
+            ctx.putImageData(
+                image,
+                0,
+                0
+            );
+
+
+            const result =
+                await ocrWorker.recognize(canvas);
+
+
+            const text =
+                result.data.text
+                    .replace(/\n+/g," ")
+                    .replace(/\s+/g," ");
+
+
+            const dates =
+                extractDates(text);
+
+
+            if(dates.verified){
+                verified =
+                    dates.verified;
+            }
+
+
+            if(dates.nextCheck){
+                nextCheck =
+                    dates.nextCheck;
+            }
+
+
+            if(
+                verified &&
+                nextCheck
+            ){
+
+                break;
+
+            }
+
+        }
+
+
+        return {
+            verified,
+            nextCheck
+        };
+
+
+    }catch(error){
+
+        console.log(
+            "OCR impossible:",
+            error
+        );
+
+        return {
+            verified:null,
+            nextCheck:null
+        };
+
+    }
+
+}
+
+
+/* =========================================================
+   LECTURE COMPLÈTE D'UN PDF
+========================================================= */
+
+async function readPDFDates(url){
+
+    /*
+       ÉTAPE 1 :
+       texte directement présent dans le PDF
+    */
+
+    const native =
+        await readNativePDFText(url);
+
+
+    if(
+        native.verified &&
+        native.nextCheck
+    ){
+
+        return {
+            verified:native.verified,
+            nextCheck:native.nextCheck
+        };
+
+    }
+
+
+    /*
+       ÉTAPE 2 :
+       OCR si le PDF est un scan
+    */
+
+    const ocr =
+        await readOCR(
+            url,
+            native.pdf
+        );
+
+
+    return {
+
+        verified:
+            native.verified ||
+            ocr.verified,
+
+        nextCheck:
+            native.nextCheck ||
+            ocr.nextCheck
+
+    };
+
+}
+
+
+/* =========================================================
+   CHARGEMENT DES PDF GITHUB
+========================================================= */
+
+async function loadDocuments(){
+
+    try{
+
+        const response =
+            await fetch(API);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "GitHub inaccessible"
+            );
+
+        }
+
+
+        const files =
+            await response.json();
+
+
+        /*
+           IMPORTANT :
+           les PDF sont à la racine du dépôt.
+        */
+
+        documents =
+            files
+                .filter(file =>
+                    file.type === "file" &&
+                    /\.pdf$/i.test(file.name)
+                )
+                .map(file => ({
+
+                    name:file.name,
+                    verified:null,
+                    nextCheck:null
+
+                }));
+
+
+        displayDocuments(
+            documents
+        );
+
+
+        /*
+           Lecture des dates PDF par PDF.
+        */
+
+        for(
+            const doc of documents
+        ){
+
+            const url =
+                SITE +
+                encodeURIComponent(
+                    doc.name
+                );
+
+
+            const dates =
+                await readPDFDates(
+                    url
+                );
+
+
+            doc.verified =
+                dates.verified;
+
+
+            doc.nextCheck =
+                dates.nextCheck;
+
+
+            /*
+               Mise à jour immédiate
+               de la carte.
+            */
+
+            displayDocuments(
+                filteredDocuments()
+            );
+
+        }
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Impossible de charger les documents.
+
+                <br><br>
+
+                Vérifie que le dépôt GitHub
+                est bien public.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+search.addEventListener(
+    "input",
+    () => {
+
+        displayDocuments(
+            filteredDocuments()
+        );
+
+    }
+);
+
+
+/* =========================================================
+   CHARGEMENT TESSERACT
+========================================================= */
+
+const script =
+    document.createElement("script");
+
+
+script.src =
+    "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+
+
+script.onload =
+    () => {
+
+        loadDocuments();
+
+    };
+
+
+script.onerror =
+    () => {
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Impossible de charger
+                le système OCR.
+
+            </div>
+
+        `;
+
+    };
+
+
+document.head.appendChild(script);
+
+</script>
+
+</body>
+</html>
+Annonce
+
+
+ 
