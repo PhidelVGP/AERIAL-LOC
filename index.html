@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PHIDEL VGP — Documents</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: white;
+    color: #173f60;
+}
+
+/* =========================
+   EN-TÊTE
+========================= */
+
+header {
+    background: white;
+    padding: 35px 20px 40px;
+    text-align: center;
+}
+
+.logo {
+    margin: 0 0 28px;
+    color: #d71920;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.search-container {
+    max-width: 850px;
+    margin: auto;
+}
+
+#search {
+    width: 100%;
+    padding: 18px 25px;
+    border: 2px solid #d9e4ec;
+    border-radius: 35px;
+    font-size: 18px;
+    outline: none;
+    color: #173f60;
+    background: white;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+#search:focus {
+    border-color: #6aa9d8;
+}
+
+#search::placeholder {
+    color: #8a9aa8;
+}
+
+/* =========================
+   DOCUMENTS
+========================= */
+
+.documents-section {
+    background: #dff2ff;
+    min-height: 500px;
+    padding: 45px 20px 70px;
+    border-radius: 35px 35px 0 0;
+}
+
+.documents-title {
+    text-align: center;
+    font-size: 30px;
+    margin: 0 0 35px;
+    color: #173f60;
+}
+
+#documents {
+    max-width: 950px;
+    margin: auto;
+}
+
+/* =========================
+   CARTE PDF
+========================= */
+
+.document-card {
+    background: white;
+    border-radius: 18px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+}
+
+.pdf-icon {
+    width: 48px;
+    height: 58px;
+    min-width: 48px;
+    background: #d71920;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.document-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.document-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #173f60;
+    margin-bottom: 9px;
+    word-break: break-word;
+}
+
+.dates {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #50687a;
+}
+
+.date-loading {
+    color: #7d8f9c;
+    font-style: italic;
+}
+
+.new-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 9px;
+    border-radius: 10px;
+    background: #d71920;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.download-button {
+    background: #2487d9;
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 13px 19px;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.download-button:hover {
+    background: #176cae;
+}
+
+.empty {
+    text-align: center;
+    color: #637887;
+    font-size: 17px;
+    padding: 40px 10px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 650px) {
+
+    header {
+        padding: 28px 15px 32px;
+    }
+
+    .logo {
+        font-size: 31px;
+    }
+
+    .documents-section {
+        padding: 35px 13px 55px;
+        border-radius: 25px 25px 0 0;
+    }
+
+    .documents-title {
+        font-size: 25px;
+    }
+
+    .document-card {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 17px;
+    }
+
+    .document-info {
+        width: calc(100% - 70px);
+    }
+
+    .download-button {
+        width: 100%;
+        text-align: center;
+        margin-top: 5px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <h1 class="logo">PHIDEL VGP</h1>
+
+    <div class="search-container">
+
+        <input
+            id="search"
+            type="text"
+            placeholder="Rechercher un document..."
+            autocomplete="off"
+        >
+
+    </div>
+
+</header>
+
+
+<section class="documents-section">
+
+    <h2 class="documents-title">
+        Documents disponibles
+    </h2>
+
+    <div id="documents">
+        <div class="empty">
+            Chargement des documents...
+        </div>
+    </div>
+
+</section>
+
+
+<!-- =========================
+     PDF.JS
+========================= -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+
+<script>
+
+/* ==========================================================
+   CONFIGURATION
+========================================================== */
+
+const GITHUB_API =
+    "https://api.github.com/repos/PhidelVGP/AERIAL-LOC/contents/?ref=main";
+
+const SITE =
+    "https://phidelvgp.github.io/AERIAL-LOC/";
+
+const documentsContainer =
+    document.getElementById("documents");
+
+const searchInput =
+    document.getElementById("search");
+
+
+/* ==========================================================
+   PDF.JS
+========================================================== */
+
+if (window.pdfjsLib) {
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+}
+
+
+/* ==========================================================
+   VARIABLES
+========================================================== */
+
+let documents = [];
+
+let tesseractLoaded = false;
+
+let tesseractLoading = null;
+
+let ocrWorker = null;
+
+
+/* ==========================================================
+   PROTECTION HTML
+========================================================== */
+
+function escapeHtml(text) {
+
+    return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* ==========================================================
+   NEW
+========================================================== */
+
+function isDownloaded(filename) {
+
+    return localStorage.getItem(
+        "phidelvgp_downloaded_" + filename
+    ) === "true";
+
+}
+
+
+/* ==========================================================
+   AFFICHAGE
+========================================================== */
+
+function displayDocuments(list) {
+
+    documentsContainer.innerHTML = "";
+
+    if (list.length === 0) {
+
+        documentsContainer.innerHTML =
+            '<div class="empty">Aucun document trouvé.</div>';
+
+        return;
+    }
+
+
+    list.forEach((filename, index) => {
+
+        const safeName =
+            escapeHtml(filename);
+
+        const newBadge =
+            isDownloaded(filename)
+            ? ""
+            : '<span class="new-badge">NEW</span>';
+
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "document-card";
+
+        card.dataset.filename =
+            filename;
+
+
+        card.innerHTML = `
+
+            <div class="pdf-icon">
+                PDF
+            </div>
+
+            <div class="document-info">
+
+                <div class="document-name">
+
+                    ${safeName.replace(/\.pdf$/i, "")}
+
+                    ${newBadge}
+
+                </div>
+
+                <div class="dates">
+
+                    <div class="date-loading">
+                        Lecture des dates...
+                    </div>
+
+                </div>
+
+            </div>
+
+            <a
+                class="download-button"
+                href="${SITE + encodeURIComponent(filename)}"
+                download
+            >
+                Télécharger
+            </a>
+        `;
+
+
+        documentsContainer.appendChild(card);
+
+
+        /* =========================
+           TÉLÉCHARGEMENT
+        ========================= */
+
+        const button =
+            card.querySelector(".download-button");
+
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                localStorage.setItem(
+                    "phidelvgp_downloaded_" + filename,
+                    "true"
+                );
+
+
+                const badge =
+                    card.querySelector(".new-badge");
+
+
+                if (badge) {
+                    badge.remove();
+                }
+
+            }
+        );
+
+
+        /*
+         * On attend que la carte soit affichée
+         * avant de commencer la lecture.
+         */
+
+        setTimeout(() => {
+
+            readDates(
+                filename,
+                card
+            );
+
+        }, 100 + index * 200);
+
+    });
+
+}
+
+
+/* ==========================================================
+   CHARGEMENT DES PDF
+========================================================== */
+
+async function loadDocuments() {
+
+    try {
+
+        const response =
+            await fetch(GITHUB_API);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Impossible de contacter GitHub"
+            );
+
+        }
+
+
+        const files =
+            await response.json();
+
+
+        documents =
+            files
+            .filter(file =>
+                file.type === "file" &&
+                /\.pdf$/i.test(file.name)
+            )
+            .map(file =>
+                file.name
+            )
+            .sort((a, b) =>
+                a.localeCompare(b, "fr")
+            );
+
+
+        displayDocuments(
+            documents
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        documentsContainer.innerHTML = `
+
+            <div class="empty">
+
+                Impossible de charger les documents.<br>
+
+                Vérifie ta connexion Internet.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ==========================================================
+   RECHERCHE
+========================================================== */
+
+searchInput.addEventListener(
+    "input",
+    function() {
+
+        const search =
+            this.value
+                .trim()
+                .toLowerCase();
+
+
+        const filtered =
+            documents.filter(
+                filename =>
+                    filename
+                        .toLowerCase()
+                        .includes(search)
+            );
+
+
+        displayDocuments(
+            filtered
+        );
+
+    }
+);
+
+
+/* ==========================================================
+   NORMALISER LE TEXTE
+========================================================== */
+
+/*
+ * Cette fonction est très importante pour l'iPhone.
+ *
+ * Elle transforme par exemple :
+ *
+ * À vérifier avant le :
+ *
+ * en :
+ *
+ * a verifier avant le :
+ *
+ * Elle enlève aussi les retours à la ligne
+ * et les espaces multiples.
+ */
+
+function normalizeText(text) {
+
+    return text
+
+        .normalize("NFD")
+
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+
+        .replace(
+            /\s+/g,
+            " "
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+}
+
+
+/* ==========================================================
+   EXTRACTION DU TEXTE PDF
+========================================================== */
+
+async function extractPdfText(pdf) {
+
+    let completeText = "";
+
+
+    const maxPages =
+        Math.min(
+            pdf.numPages,
+            15
+        );
+
+
+    for (
+        let pageNumber = 1;
+        pageNumber <= maxPages;
+        pageNumber++
+    ) {
+
+        try {
+
+            const page =
+                await pdf.getPage(
+                    pageNumber
+                );
+
+
+            const content =
+                await page.getTextContent();
+
+
+            const text =
+                content.items
+                    .map(item =>
+                        item.str
+                    )
+                    .join(" ");
+
+
+            completeText +=
+                "\n" + text;
+
+
+        } catch (error) {
+
+            console.log(
+                "Erreur lecture page",
+                pageNumber,
+                error
+            );
+
+        }
+
+    }
+
+
+    return completeText;
+
+}
+
+
+/* ==========================================================
+   CHERCHER UNE DATE
+========================================================== */
+
+function findDate(text, type) {
+
+    const normalized =
+        normalizeText(text);
+
+
+    let regex;
+
+
+    /* =========================
+       VÉRIFIÉ LE
+    ========================= */
+
+    if (type === "verifie") {
+
+        regex =
+            /verifie\s*le\s*:?\s*(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{4})/i;
+
+    }
+
+
+    /* =========================
+       À VÉRIFIER AVANT LE
+    ========================= */
+
+    if (type === "aVerifier") {
+
+        regex =
+            /a\s*verifier\s*avant\s*le\s*:?\s*(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{4})/i;
+
+    }
+
+
+    if (!regex) {
+        return null;
+    }
+
+
+    const match =
+        normalized.match(regex);
+
+
+    if (!match) {
+        return null;
+    }
+
+
+    return formatDate(
+        match[1],
+        match[2],
+        match[3]
+    );
+
+}
+
+
+/* ==========================================================
+   FORMAT DATE
+========================================================== */
+
+function formatDate(
+    day,
+    month,
+    year
+) {
+
+    return String(day)
+        .padStart(2, "0")
+
+        + "/" +
+
+        String(month)
+            .padStart(2, "0")
+
+        + "/" +
+
+        year;
+
+}
+
+
+/* ==========================================================
+   TESSERACT
+========================================================== */
+
+async function loadTesseract() {
+
+    if (tesseractLoaded) {
+        return;
+    }
+
+
+    if (tesseractLoading) {
+        return tesseractLoading;
+    }
+
+
+    tesseractLoading =
+        new Promise(
+            (resolve, reject) => {
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+
+                script.src =
+                    "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+
+
+                script.onload =
+                    () => {
+
+                        tesseractLoaded =
+                            true;
+
+                        resolve();
+
+                    };
+
+
+                script.onerror =
+                    reject;
+
+
+                document.head.appendChild(
+                    script
+                );
+
+            }
+        );
+
+
+    return tesseractLoading;
+
+}
+
+
+/* ==========================================================
+   OCR
+========================================================== */
+
+async function ocrPage(page) {
+
+    await loadTesseract();
+
+
+    if (!ocrWorker) {
+
+        ocrWorker =
+            await Tesseract.createWorker(
+                "fra"
+            );
+
+    }
+
+
+    const viewport =
+        page.getViewport({
+            scale: 2
+        });
+
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    const context =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    canvas.width =
+        Math.floor(
+            viewport.width
+        );
+
+
+    canvas.height =
+        Math.floor(
+            viewport.height
+        );
+
+
+    await page.render({
+
+        canvasContext:
+            context,
+
+        viewport:
+            viewport
+
+    }).promise;
+
+
+    const result =
+        await ocrWorker.recognize(
+            canvas
+        );
+
+
+    return result.data.text || "";
+
+}
+
+
+/* ==========================================================
+   AFFICHER LES DATES
+========================================================== */
+
+function showDates(
+    element,
+    verifie,
+    aVerifier
+) {
+
+    element.innerHTML = `
+
+        <div>
+            Vérifié le :
+            ${
+                verifie
+                ? verifie
+                : "Dates non disponibles"
+            }
+        </div>
+
+        <div>
+            À vérifier avant le :
+            ${
+                aVerifier
+                ? aVerifier
+                : "Dates non disponibles"
+            }
+        </div>
+
+    `;
+
+}
+
+
+/* ==========================================================
+   LECTURE DES DATES
+========================================================== */
+
+async function readDates(
+    filename,
+    card
+) {
+
+    const datesElement =
+        card.querySelector(
+            ".dates"
+        );
+
+
+    try {
+
+        const pdfUrl =
+            SITE +
+            encodeURIComponent(
+                filename
+            );
+
+
+        /*
+         * On récupère le PDF.
+         */
+
+        const response =
+            await fetch(
+                pdfUrl
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "PDF inaccessible"
+            );
+
+        }
+
+
+        const arrayBuffer =
+            await response.arrayBuffer();
+
+
+        /*
+         * Ouverture avec PDF.js.
+         */
+
+        const pdf =
+            await pdfjsLib.getDocument({
+                data:
+                    arrayBuffer
+            }).promise;
+
+
+        /*
+         * =========================
+         * 1. TEXTE NORMAL DU PDF
+         * =========================
+         */
+
+        const text =
+            await extractPdfText(
+                pdf
+            );
+
+
+        let verifie =
+            findDate(
+                text,
+                "verifie"
+            );
+
+
+        let aVerifier =
+            findDate(
+                text,
+                "aVerifier"
+            );
+
+
+        /*
+         * Si les deux dates sont trouvées,
+         * on les affiche immédiatement.
+         */
+
+        if (
+            verifie &&
+            aVerifier
+        ) {
+
+            saveDates(
+                filename,
+                verifie,
+                aVerifier
+            );
+
+
+            showDates(
+                datesElement,
+                verifie,
+                aVerifier
+            );
+
+
+            return;
+        }
+
+
+        /*
+         * =========================
+         * 2. OCR
+         * =========================
+         *
+         * Si une date manque,
+         * on lance l'OCR.
+         */
+
+        const maxPages =
+            Math.min(
+                pdf.numPages,
+                15
+            );
+
+
+        let ocrText = "";
+
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= maxPages;
+            pageNumber++
+        ) {
+
+            try {
+
+                const page =
+                    await pdf.getPage(
+                        pageNumber
+                    );
+
+
+                ocrText +=
+                    "\n" +
+                    await ocrPage(
+                        page
+                    );
+
+
+                /*
+                 * On recherche à nouveau
+                 * les deux dates.
+                 */
+
+                if (!verifie) {
+
+                    verifie =
+                        findDate(
+                            ocrText,
+                            "verifie"
+                        );
+
+                }
+
+
+                if (!aVerifier) {
+
+                    aVerifier =
+                        findDate(
+                            ocrText,
+                            "aVerifier"
+                        );
+
+                }
+
+
+                /*
+                 * Dès que les deux dates
+                 * sont trouvées, on arrête.
+                 */
+
+                if (
+                    verifie &&
+                    aVerifier
+                ) {
+
+                    break;
+
+                }
+
+
+            } catch (error) {
+
+                console.log(
+                    "Erreur OCR :",
+                    filename,
+                    error
+                );
+
+            }
+
+        }
+
+
+        /*
+         * =========================
+         * AFFICHAGE
+         * =========================
+         */
+
+        showDates(
+            datesElement,
+            verifie,
+            aVerifier
+        );
+
+
+        /*
+         * =========================
+         * CACHE
+         * =========================
+         *
+         * IMPORTANT :
+         * on n'enregistre le résultat
+         * que si les DEUX dates existent.
+         *
+         * Donc si l'iPhone n'en trouve
+         * qu'une aujourd'hui, il
+         * réessaiera plus tard.
+         */
+
+        if (
+            verifie &&
+            aVerifier
+        ) {
+
+            saveDates(
+                filename,
+                verifie,
+                aVerifier
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.log(
+            "Erreur lecture dates :",
+            filename,
+            error
+        );
+
+
+        /*
+         * On laisse la possibilité
+         * de réessayer.
+         */
+
+        datesElement.innerHTML = `
+
+            <div>
+                Vérifié le :
+                Dates non disponibles
+            </div>
+
+            <div>
+                À vérifier avant le :
+                Dates non disponibles
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ==========================================================
+   ENREGISTRER LES DATES
+========================================================== */
+
+function saveDates(
+    filename,
+    verifie,
+    aVerifier
+) {
+
+    /*
+     * On efface d'abord
+     * l'ancien cache éventuel.
+     */
+
+    localStorage.removeItem(
+        "phidelvgp_dates_" +
+        filename
+    );
+
+
+    /*
+     * Puis on enregistre seulement
+     * si les deux dates sont valides.
+     */
+
+    if (
+        verifie &&
+        aVerifier
+    ) {
+
+        localStorage.setItem(
+
+            "phidelvgp_dates_" +
+            filename,
+
+            JSON.stringify({
+
+                verifie:
+                    verifie,
+
+                aVerifier:
+                    aVerifier
+
+            })
+
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   NETTOYAGE DE L'ANCIEN CACHE
+========================================================== */
+
+/*
+ * Cette partie supprime les anciens résultats
+ * incomplets enregistrés par la précédente version.
+ */
+
+function clearOldIncompleteCache() {
+
+    documents.forEach(
+        filename => {
+
+            const key =
+                "phidelvgp_dates_" +
+                filename;
+
+
+            const saved =
+                localStorage.getItem(
+                    key
+                );
+
+
+            if (!saved) {
+                return;
+            }
+
+
+            try {
+
+                const data =
+                    JSON.parse(
+                        saved
+                    );
+
+
+                if (
+                    !data.verifie ||
+                    !data.aVerifier
+                ) {
+
+                    localStorage.removeItem(
+                        key
+                    );
+
+                }
+
+            } catch {
+
+                localStorage.removeItem(
+                    key
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================================
+   DÉMARRAGE
+========================================================== */
+
+loadDocuments()
+    .then(() => {
+
+        clearOldIncompleteCache();
+
+    });
+
+</script>
+
+</body>
+</html>
+Annonce
+
+
