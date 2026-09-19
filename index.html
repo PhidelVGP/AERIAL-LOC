@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PHIDEL VGP — Documents</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: white;
+    color: #222;
+}
+
+/* =========================
+   EN-TÊTE
+========================= */
+
+header {
+    background: white;
+    padding: 35px 20px 25px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo {
+    color: #e30613;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin: 5px 0 25px;
+}
+
+.machine {
+    position: absolute;
+    top: 25px;
+    width: 150px;
+    height: 100px;
+}
+
+.machine.left {
+    left: 8%;
+}
+
+.machine.right {
+    right: 8%;
+}
+
+/* =========================
+   CHARIOT ÉLÉVATEUR
+========================= */
+
+.forklift-body {
+    position: absolute;
+    left: 25px;
+    bottom: 15px;
+    width: 75px;
+    height: 38px;
+    background: #f5c400;
+    border-radius: 7px;
+}
+
+.forklift-seat {
+    position: absolute;
+    left: 62px;
+    bottom: 53px;
+    width: 25px;
+    height: 22px;
+    background: #222;
+    border-radius: 4px;
+}
+
+.forklift-roof {
+    position: absolute;
+    left: 55px;
+    bottom: 73px;
+    width: 5px;
+    height: 38px;
+    background: #333;
+}
+
+.forklift-roof2 {
+    position: absolute;
+    left: 91px;
+    bottom: 73px;
+    width: 5px;
+    height: 38px;
+    background: #333;
+}
+
+.forklift-roof3 {
+    position: absolute;
+    left: 55px;
+    bottom: 105px;
+    width: 41px;
+    height: 5px;
+    background: #333;
+}
+
+.forklift-fork1 {
+    position: absolute;
+    left: 4px;
+    bottom: 13px;
+    width: 43px;
+    height: 5px;
+    background: #333;
+}
+
+.forklift-fork2 {
+    position: absolute;
+    left: 4px;
+    bottom: 5px;
+    width: 43px;
+    height: 5px;
+    background: #333;
+}
+
+.wheel {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: #222;
+    border-radius: 50%;
+    bottom: 0;
+}
+
+.wheel.one {
+    left: 32px;
+}
+
+.wheel.two {
+    left: 91px;
+}
+
+/* =========================
+   NACELLE
+========================= */
+
+.lift-base {
+    position: absolute;
+    right: 30px;
+    bottom: 12px;
+    width: 75px;
+    height: 30px;
+    background: #f39c12;
+    border-radius: 8px;
+}
+
+.lift-wheel1,
+.lift-wheel2 {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #222;
+    border-radius: 50%;
+    bottom: 0;
+}
+
+.lift-wheel1 {
+    right: 75px;
+}
+
+.lift-wheel2 {
+    right: 25px;
+}
+
+.lift-boom {
+    position: absolute;
+    right: 68px;
+    bottom: 40px;
+    width: 18px;
+    height: 80px;
+    background: #f39c12;
+    transform: rotate(-25deg);
+    transform-origin: bottom;
+    border-radius: 5px;
+}
+
+.lift-boom2 {
+    position: absolute;
+    right: 35px;
+    bottom: 88px;
+    width: 18px;
+    height: 70px;
+    background: #f39c12;
+    transform: rotate(55deg);
+    transform-origin: bottom;
+    border-radius: 5px;
+}
+
+.lift-platform {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    width: 50px;
+    height: 25px;
+    background: #f39c12;
+    border-radius: 5px;
+}
+
+.lift-person {
+    position: absolute;
+    right: 15px;
+    top: -18px;
+    width: 13px;
+    height: 20px;
+    background: #333;
+    border-radius: 50%;
+}
+
+/* =========================
+   RECHERCHE
+========================= */
+
+.search-container {
+    max-width: 850px;
+    margin: 0 auto 25px;
+    padding: 0 20px;
+}
+
+#search {
+    width: 100%;
+    height: 58px;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    padding: 0 25px;
+    font-size: 18px;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+#search:focus {
+    border-color: #1683d8;
+}
+
+/* =========================
+   ZONE DOCUMENTS
+========================= */
+
+.documents-area {
+    background: #dff1ff;
+    border-radius: 35px 35px 0 0;
+    padding: 35px 20px 60px;
+    min-height: 500px;
+}
+
+.documents-title {
+    text-align: center;
+    font-size: 27px;
+    font-weight: 800;
+    margin: 0 0 30px;
+    color: #163b59;
+}
+
+#documents {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* =========================
+   CARTE PDF
+========================= */
+
+.document-card {
+    background: white;
+    border-radius: 20px;
+    padding: 22px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.pdf-icon {
+    min-width: 58px;
+    height: 68px;
+    background: #e30613;
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-name {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+.date {
+    color: #555;
+    font-size: 14px;
+    margin: 3px 0;
+}
+
+.new-badge {
+    display: inline-block;
+    background: #e30613;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 5px 9px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.download {
+    background: #1683d8;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 15px;
+}
+
+.download:hover {
+    background: #096bb5;
+}
+
+.loading {
+    text-align: center;
+    padding: 50px 10px;
+    font-size: 18px;
+    color: #555;
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    color: #c00;
+    font-weight: bold;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    header {
+        padding-top: 25px;
+    }
+
+    .logo {
+        font-size: 31px;
+        margin-bottom: 95px;
+    }
+
+    .machine {
+        transform: scale(0.75);
+        top: 65px;
+    }
+
+    .machine.left {
+        left: 0;
+    }
+
+    .machine.right {
+        right: 0;
+    }
+
+    .document-card {
+        flex-wrap: wrap;
+        padding: 17px;
+    }
+
+    .document-info {
+        min-width: calc(100% - 80px);
+    }
+
+    .download {
+        width: 100%;
+        text-align: center;
+    }
+
+    .documents-area {
+        border-radius: 25px 25px 0 0;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <!-- CHARIOT -->
+    <div class="machine left">
+        <div class="forklift-body"></div>
+        <div class="forklift-seat"></div>
+        <div class="forklift-roof"></div>
+        <div class="forklift-roof2"></div>
+        <div class="forklift-roof3"></div>
+        <div class="forklift-fork1"></div>
+        <div class="forklift-fork2"></div>
+        <div class="wheel one"></div>
+        <div class="wheel two"></div>
+    </div>
+
+    <!-- LOGO -->
+    <div class="logo">
+        PHIDEL VGP
+    </div>
+
+    <!-- NACELLE -->
+    <div class="machine right">
+        <div class="lift-base"></div>
+        <div class="lift-wheel1"></div>
+        <div class="lift-wheel2"></div>
+        <div class="lift-boom"></div>
+        <div class="lift-boom2"></div>
+        <div class="lift-platform"></div>
+        <div class="lift-person"></div>
+    </div>
+
+    <div class="search-container">
+        <input
+            type="text"
+            id="search"
+            placeholder="Rechercher un document..."
+            autocomplete="off"
+        >
+    </div>
+
+</header>
+
+<section class="documents-area">
+
+    <h1 class="documents-title">
+        Documents disponibles
+    </h1>
+
+    <div id="documents">
+        <div class="loading">
+            Chargement des documents...
+        </div>
+    </div>
+
+</section>
+
+
+<!-- PDF.JS -->
+<script type="module">
+
+const SITE = "https://phidelvgp.github.io/AERIAL-LOC/";
+
+const API =
+    "https://api.github.com/repos/PhidelVGP/AERIAL-LOC/contents/?ref=main";
+
+const documentsContainer =
+    document.getElementById("documents");
+
+const searchInput =
+    document.getElementById("search");
+
+let allDocuments = [];
+
+let ocrWorker = null;
+
+
+/* ==========================================
+   FORMAT DATE
+========================================== */
+
+function formatDate(date) {
+
+    if (!date) return null;
+
+    const d = new Date(date);
+
+    if (isNaN(d)) return null;
+
+    return d.toLocaleDateString("fr-FR");
+}
+
+
+/* ==========================================
+   EXTRACTION DES DATES AVEC OCR
+========================================== */
+
+async function getDatesFromPDF(url) {
+
+    try {
+
+        if (!ocrWorker) {
+
+            ocrWorker =
+                await window.Tesseract.createWorker("fra");
+
+        }
+
+        const pdfjsLib =
+            await import(
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
+            );
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+        const pdf =
+            await pdfjsLib.getDocument(url).promise;
+
+        const maxPages =
+            Math.min(pdf.numPages, 3);
+
+        let verified = null;
+        let nextCheck = null;
+
+        for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++) {
+
+            const page =
+                await pdf.getPage(pageNumber);
+
+            const viewport =
+                page.getViewport({ scale: 1.5 });
+
+            const canvas =
+                document.createElement("canvas");
+
+            const context =
+                canvas.getContext("2d");
+
+            canvas.width =
+                viewport.width;
+
+            canvas.height =
+                viewport.height;
+
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            const result =
+                await ocrWorker.recognize(canvas);
+
+            const text =
+                result.data.text
+                    .replace(/\n+/g, " ")
+                    .replace(/\s+/g, " ");
+
+            /*
+             * Recherche :
+             * Vérifié le : 11/08/2026
+             */
+            const verifiedMatch =
+                text.match(
+                    /Vérifié\s*le\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i
+                );
+
+            /*
+             * Recherche :
+             * À vérifier avant le : 11/02/2027
+             */
+            const nextMatch =
+                text.match(
+                    /[ÀA]\s*vérifier\s*avant\s*le\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i
+                );
+
+            if (verifiedMatch) {
+                verified =
+                    verifiedMatch[1].replace(/\./g, "/").replace(/-/g, "/");
+            }
+
+            if (nextMatch) {
+                nextCheck =
+                    nextMatch[1].replace(/\./g, "/").replace(/-/g, "/");
+            }
+
+            if (verified && nextCheck) {
+                break;
+            }
+        }
+
+        return {
+            verified,
+            nextCheck
+        };
+
+    } catch (error) {
+
+        console.log(
+            "OCR impossible pour ce document :",
+            error
+        );
+
+        return {
+            verified: null,
+            nextCheck: null
+        };
+    }
+}
+
+
+/* ==========================================
+   NOM PROPRE
+========================================== */
+
+function cleanName(filename) {
+
+    return filename
+        .replace(/\.pdf$/i, "")
+        .trim();
+}
+
+
+/* ==========================================
+   AFFICHAGE
+========================================== */
+
+function displayDocuments(documents) {
+
+    documentsContainer.innerHTML = "";
+
+    if (documents.length === 0) {
+
+        documentsContainer.innerHTML =
+            `<div class="loading">
+                Aucun document trouvé.
+            </div>`;
+
+        return;
+    }
+
+    documents.forEach(doc => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "document-card";
+
+        const alreadyDownloaded =
+            localStorage.getItem(
+                "phidelvgp_downloaded_" + doc.name
+            ) === "true";
+
+        const newBadge =
+            alreadyDownloaded
+                ? ""
+                : `<span class="new-badge">NEW</span>`;
+
+        const verifiedText =
+            doc.verified
+                ? `Vérifié le : ${doc.verified}`
+                : `Vérifié le : date non disponible`;
+
+        const nextText =
+            doc.nextCheck
+                ? `À vérifier avant le : ${doc.nextCheck}`
+                : `À vérifier avant le : date non disponible`;
+
+        const url =
+            SITE + encodeURIComponent(doc.name);
+
+        card.innerHTML = `
+
+            <div class="pdf-icon">
+                PDF
+            </div>
+
+            <div class="document-info">
+
+                <div class="document-name">
+                    ${cleanName(doc.name)}
+                    ${newBadge}
+                </div>
+
+                <div class="date">
+                    ${verifiedText}
+                </div>
+
+                <div class="date">
+                    ${nextText}
+                </div>
+
+            </div>
+
+            <a
+                class="download"
+                href="${url}"
+                download="${doc.name}"
+            >
+                Télécharger
+            </a>
+        `;
+
+        const button =
+            card.querySelector(".download");
+
+        button.addEventListener("click", () => {
+
+            localStorage.setItem(
+                "phidelvgp_downloaded_" + doc.name,
+                "true"
+            );
+
+            const badge =
+                card.querySelector(".new-badge");
+
+            if (badge) {
+                badge.remove();
+            }
+        });
+
+        documentsContainer.appendChild(card);
+    });
+}
+
+
+/* ==========================================
+   CHARGEMENT DES PDF DEPUIS GITHUB
+========================================== */
+
+async function loadDocuments() {
+
+    try {
+
+        const response =
+            await fetch(API);
+
+        if (!response.ok) {
+            throw new Error(
+                "Impossible de contacter GitHub."
+            );
+        }
+
+        const files =
+            await response.json();
+
+        const pdfFiles =
+            files.filter(item =>
+                item.type === "file" &&
+                item.name.toLowerCase().endsWith(".pdf")
+            );
+
+        allDocuments =
+            pdfFiles.map(item => ({
+                name: item.name,
+                verified: null,
+                nextCheck: null
+            }));
+
+        displayDocuments(allDocuments);
+
+        /*
+         * OCR de chaque PDF
+         */
+        for (const doc of allDocuments) {
+
+            const url =
+                SITE + encodeURIComponent(doc.name);
+
+            const dates =
+                await getDatesFromPDF(url);
+
+            doc.verified =
+                dates.verified;
+
+            doc.nextCheck =
+                dates.nextCheck;
+
+            displayDocuments(
+                filteredDocuments()
+            );
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        documentsContainer.innerHTML =
+            `<div class="error">
+                Impossible de charger les documents.
+                <br><br>
+                Vérifie que le dépôt GitHub est bien public.
+            </div>`;
+    }
+}
+
+
+/* ==========================================
+   RECHERCHE
+========================================== */
+
+function filteredDocuments() {
+
+    const search =
+        searchInput.value
+            .toLowerCase()
+            .trim();
+
+    if (!search) {
+        return allDocuments;
+    }
+
+    return allDocuments.filter(doc =>
+        doc.name
+            .toLowerCase()
+            .includes(search)
+    );
+}
+
+
+searchInput.addEventListener(
+    "input",
+    () => {
+        displayDocuments(
+            filteredDocuments()
+        );
+    }
+);
+
+
+/* ==========================================
+   TESSERACT
+========================================== */
+
+const script =
+    document.createElement("script");
+
+script.src =
+    "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+
+script.onload =
+    () => {
+        loadDocuments();
+    };
+
+script.onerror =
+    () => {
+
+        documentsContainer.innerHTML =
+            `<div class="error">
+                Impossible de charger le système de lecture des documents.
+            </div>`;
+    };
+
+document.head.appendChild(script);
+
+</script>
+
+</body>
+</html>
+Annonce
+
+
+ 
