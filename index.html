@@ -353,13 +353,11 @@ function displayDocuments(list) {
             '<div class="empty">Aucun document trouvé.</div>';
         return;
     }
-    list.forEach((filename, index) => 
+    list.forEach((filename, index) => {
         const safeName =
             escapeHtml(filename);
-    
 const newBadge =
     '<span class="new-badge" style="display:none">NEW</span>';
-
         const card =
             document.createElement("div");
         card.className =
@@ -370,17 +368,11 @@ const newBadge =
             <div class="pdf-icon">
                 PDF
             </div>
-
             <div class="document-info">
-
                 <div class="document-name">
-
                     ${safeName.replace(/\.pdf$/i, "")}
-
                     ${newBadge}
-
                 </div>
-
                 <div class="dates">
 
                     <div class="date-loading">
