@@ -351,34 +351,22 @@ function displayDocuments(list) {
 
         documentsContainer.innerHTML =
             '<div class="empty">Aucun document trouvé.</div>';
-
         return;
     }
-
-
-    list.forEach((filename, index) => {
-
+    list.forEach((filename, index) => 
         const safeName =
             escapeHtml(filename);
-
-        const newBadge =
-            isDownloaded(filename)
-            ? ""
-            : '<span class="new-badge">NEW</span>';
-
+    
+const newBadge =
+    '<span class="new-badge" style="display:none">NEW</span>';
 
         const card =
             document.createElement("div");
-
         card.className =
             "document-card";
-
         card.dataset.filename =
             filename;
-
-
         card.innerHTML = `
-
             <div class="pdf-icon">
                 PDF
             </div>
@@ -414,6 +402,8 @@ function displayDocuments(list) {
 
 
         documentsContainer.appendChild(card);
+showNewBadgeFor15Days(filename, card);
+
 
 
         /* =========================
