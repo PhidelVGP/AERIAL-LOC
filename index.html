@@ -989,16 +989,52 @@ async function ocrPage(page) {
 /* ==========================================================
    AFFICHER LES DATES
 ========================================================== */
+function findObservation(text) {
 
+
+
+    const cleanedText =
+
+        String(text || "")
+
+            .replace(/\s+/g, " ")
+
+            .trim();
+
+
+
+    const match =
+
+        cleanedText.match(
+
+            /observations?\s+compl[eé]mentaires?\s*:?\s*(.*?)(?=\s+(?:contr[oô]le effectu[eé]|nom\s*:|soci[eé]t[eé]\s*:|signature\s*:)|$)/i
+
+        );
+
+
+
+    if (!match || !match[1]) {
+
+        return null;
+
+    }
+
+
+
+    return match[1].trim();
+
+}
 function showDates(
     element,
     verifie,
-    aVerifier
+    aVerifier,
+    observation
 ) {
 
     element.innerHTML = `
 
-        <div>
+
+
             Vérifié le :
             ${
                 verifie
@@ -1015,6 +1051,22 @@ function showDates(
                 : "Dates non disponibles"
             }
         </div>
+<div class="observation">
+
+    <strong>Observation :</strong>
+
+    ${
+
+        observation
+
+            ? escapeHtml(observation)
+
+            : "Observation non disponible"
+
+    }
+
+</div>
+
 
     `;
 
@@ -1077,6 +1129,33 @@ async function readDates(
                 data:
                     arrayBuffer
             }).promise;
+        const lastPage =
+
+    await pdf.getPage(pdf.numPages);
+
+
+
+const lastPageContent =
+
+    await lastPage.getTextContent();
+
+
+
+const lastPageText =
+
+    lastPageContent.items
+
+        .map(item => item.str)
+
+        .join(" ");
+
+
+
+const observation =
+
+    findObservation(lastPageText);
+
+
 
 
         /*
@@ -1125,7 +1204,9 @@ async function readDates(
             showDates(
                 datesElement,
                 verifie,
-                aVerifier
+                aVerifier,
+                observation
+                
             );
 
 
@@ -1237,7 +1318,8 @@ async function readDates(
         showDates(
             datesElement,
             verifie,
-            aVerifier
+            aVerifier,
+            observation
         );
 
 
