@@ -1118,45 +1118,45 @@ async function readDates(
 
         const arrayBuffer =
             await response.arrayBuffer();
-
-
         /*
          * Ouverture avec PDF.js.
          */
-
         const pdf =
             await pdfjsLib.getDocument({
                 data:
                     arrayBuffer
             }).promise;
-        const lastPage =
+   
+let observation = null;
+const firstPageToCheck =
+    Math.max(1, pdf.numPages - 2);
 
-    await pdf.getPage(pdf.numPages);
+for (
 
+    let pageNumber = pdf.numPages;
 
+    pageNumber >= firstPageToCheck;
 
-const lastPageContent =
+    pageNumber--
 
-    await lastPage.getTextContent();
+) {
 
+    const observationPage =
+        await pdf.getPage(pageNumber);
+    const observationContent =
+        await observationPage.getTextContent();
+    const observationText =
+        observationContent.items
+            .map(item => item.str)
+            .join(" ");
+    observation =
+        findObservation(observationText);
+    if (observation) {
+        break;
 
+    }
 
-const lastPageText =
-
-    lastPageContent.items
-
-        .map(item => item.str)
-
-        .join(" ");
-
-
-
-const observation =
-
-    findObservation(lastPageText);
-
-
-
+}
 
         /*
          * =========================
